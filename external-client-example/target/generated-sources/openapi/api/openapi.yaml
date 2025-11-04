@@ -1,0 +1,3617 @@
+openapi: 3.0.2
+info:
+  contact:
+    email: francisco.munozdiaz@servexternos.gruposantander.com
+    name: Francisco Javier Muñoz
+  description: Gateway API to manage accounts validation
+  title: Accounts_Validation
+  version: 1.1.0
+  x-santander-catalogation:
+    bian-landscape-version: "10"
+    bian-business-area: Operations and Execution
+    bian-business-domain: Account Management
+    bian-service-domain: Customer Position
+  x-pagonxt-catalogation:
+    team: a-team
+    domain: emi-accounts
+    system: accounts-manager
+servers:
+- url: "https://{host}/accounts_validation"
+  variables:
+    host:
+      default: core.onetrade.dub.dev.api.pagonxt.corp
+      description: The environment where the API is hosted.
+      enum:
+      - onetrade.dev.api.pagonxt.com
+      - sandbox.onetrade.dev.api.pagonxt.com
+      - onetrade.pre.api.pagonxt.com
+      - sandbox.onetrade.pre.api.pagonxt.com
+      - onetrade.api.pagonxt.com
+      - sandbox.onetrade.api.pagonxt.com
+      - core.onetrade.dub.dev.api.pagonxt.corp
+      - core.onetrade.ams.dev.api.pagonxt.corp
+      - core.onetrade.dub.pre.api.pagonxt.corp
+      - core.onetrade.ams.pre.api.pagonxt.corp
+      - core.onetrade.dub.api.pagonxt.corp
+      - core.onetrade.ams.api.pagonxt.corp
+security:
+- JWTProfile: []
+- bearerJWTAuth: []
+tags:
+- description: Operations about accounts
+  name: Accounts
+paths:
+  /accounts:
+    get:
+      description: |
+        Retrieves a list for all the accounts of a PagoNXT customer.
+
+        This operation is available to PagoNXT staff and 3rd parties.
+
+        For the customer Id requested, it will return all its accounts.
+
+        Sort order by default is opening date ascending.
+      operationId: getClientAccountsList
+      parameters:
+      - description: Customer identifier
+        explode: true
+        in: query
+        name: customer_id
+        required: false
+        schema:
+          example: pagofx_ukGBDTT667794
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: "Whether balances are to be included in the response.\n\nIf the\
+          \ value is 'balances', the response includes the following balance types\
+          \ are: \n- consolidated  \n- pendingConsolidation  \n- withholding  \n-\
+          \ overdraft  \n- limit  \n- available  \n- current\n\nThe default value\
+          \ is empty and returns no balances.\n"
+        explode: true
+        in: query
+        name: _expand
+        required: false
+        schema:
+          example: balances
+          maxLength: 8
+          minLength: 8
+          pattern: ^(balances)$
+          type: string
+        style: form
+      - description: |
+          Status of the accounts to be included in the response.
+          The possible values are a comma separated list of:
+          - Open = Account is open and movements are restricted only by the customer's available balance and account contract attributes. This includes accounts with warnings.
+          - Blocked = Account has some restrictive block.
+          - Closed = Account is closed.
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - Open
+          - Closed
+          - Blocked
+          example: Open
+          type: string
+        style: form
+      - description: "Whether closed accounts are included in the response.\nThe possible\
+          \ values are:\n- true = Accounts with closed status are included\n- false\
+          \ = Accounts with closed status are not included  \n\nThe default value\
+          \ is true. If the 'status' parameter is provided, this parameter must not\
+          \ be used.\n"
+        explode: true
+        in: query
+        name: historical
+        required: false
+        schema:
+          example: true
+          type: boolean
+        style: form
+      - description: "List of accounts to be included in the response.\nThe accounts\
+          \ must be defined with comma-separated account numbers without blank spaces.\
+          \ \n\nAll accounts must be identified using the account number format defined\
+          \ in the 'accountIdType' parameter.\nThe maximum number of included accounts\
+          \ is 20. \n\nIf you want data about more than 20 accounts, call the API\
+          \ multiple times, for 20 accounts at a time.\n"
+        explode: true
+        in: query
+        name: accounts_list
+        required: false
+        schema:
+          example: "account1,account2,account3,account4,account5"
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-zA-Z_0-9_@,/#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: "Format used for the account number in the 'account_id' property.\n\
+          \nThe possible values are:\n- iban = IBAN code\n- bban = Basic Bank Account\
+          \ Number (BBAN) that represents a country-specific bank account number.\
+          \ Each country has its own standards for the format and length of the BBAN.\
+          \ The value is at most 31 char or 35 bytes long.\n- uuid = Unique account\
+          \ identifier. It is an internal code to uniquely identify the account. Some\
+          \ accounts are internal so they have UUID but no IBAN/BBAN.\n\nFor example:\
+          \ \n- In UK, the BBAN format is: Sort code(6) + Account(8)\n- In Spain,\
+          \ the BBAN format: Bank(4) + Branch(4) + CheckDigit(2) + Account(10) \n\
+          - In BE, the BBAN format is: Bank(3) + Account(7) + CheckDigit(2)\n"
+        explode: true
+        in: query
+        name: account_id_type
+        required: false
+        schema:
+          enum:
+          - iban
+          - bban
+          - uuid
+          example: iban
+          type: string
+        style: form
+      - description: |
+          Data structure containing details of the country  for the account. Needed if BBAN format por the accountIdType is requested.
+
+          Country code.
+          The value is based on the ISO 3166-1 alpha-2 (https://www.iso.org/obp/ui/#search/code/).
+        explode: true
+        in: query
+        name: account_id_country
+        required: false
+        schema:
+          example: GB
+          maxLength: 2
+          minLength: 2
+          pattern: "^[A-Z]*$"
+          type: string
+        style: form
+      - description: Customer name associated with the account.
+        explode: true
+        in: query
+        name: customer_name
+        required: false
+        schema:
+          example: Customer Company Name
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: Legal Name of the legal entity associated with the account.
+        explode: true
+        in: query
+        name: legal_entity_name
+        required: false
+        schema:
+          example: PagoNxt OneTrade UK Ltd
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: Short code list of the legal entities associated with the account.
+        explode: true
+        in: query
+        name: legal_entity_short_code_list
+        required: false
+        schema:
+          example: "pagofx_uk,pagonxt_es"
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: Unique identifiers of products associated with an account.
+        explode: true
+        in: query
+        name: product_id_list
+        required: false
+        schema:
+          example: "42dbdc87-a491-4566-bb97-eb2d9aea4707,2fb17fee-5f47-4bb5-b179-14e0800beceb"
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: Name of the product associated with the account.
+        explode: true
+        in: query
+        name: product_name
+        required: false
+        schema:
+          example: eMoney Account
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: It is an alias of account name the customer has assigned to the
+          account for easy identification.
+        explode: true
+        in: query
+        name: nickname
+        required: false
+        schema:
+          example: Test nickname
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: Number of values that should be informed per page
+        explode: true
+        in: query
+        name: _limit
+        required: false
+        schema:
+          example: 10
+          format: integer
+          maximum: 200
+          minimum: 1
+          type: number
+        style: form
+      - description: Pagination identifier
+        explode: true
+        in: query
+        name: _offset
+        required: false
+        schema:
+          example: 0
+          format: integer
+          maximum: 500
+          minimum: 0
+          type: number
+        style: form
+      - description: "Sorting order for the retrieved accounts.\n\nThe possible values\
+          \ are:\n- +product_name = ascending by product_name  \n- -product_name =\
+          \ descending by product_name  \n- +customer_name = ascending by customer_name\
+          \  \n- -customer_name = descending by customer_name  \n- +opening_date_time\
+          \ = ascending by opening_date_time  \n- -opening_date_time = descending\
+          \ by opening_date_time  \n- +last_update_date_time = ascending by last_update_date_time\
+          \  \n- -last_update_date_time = descending by last_update_date_time  \n\
+          - +closing_date_time = ascending by closing_date_time  \n- -closing_date_time\
+          \ = descending by closing_date_time\n\nIf the value is omitted, the default\
+          \ value is '-opening_date_time'.\n"
+        explode: true
+        in: query
+        name: _sort
+        required: false
+        schema:
+          enum:
+          - -product_name
+          - +product_name
+          - -customer_name
+          - +customer_name
+          - -opening_date_time
+          - +opening_date_time
+          - -last_update_date_time
+          - +last_update_date_time
+          - -closing_date_time
+          - +closing_date_time
+          example: -product_name
+          type: string
+        style: form
+      - description: Client ID header.
+        explode: false
+        in: header
+        name: x-santander-client-id
+        required: true
+        schema:
+          example: test
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9-]*$"
+          type: string
+        style: simple
+      - description: "Overall ID of the trace, shared by every span in the trace.\
+          \ \nThe value is 64 or 128 bits long.\n"
+        explode: false
+        in: header
+        name: x-b3-traceid
+        required: false
+        schema:
+          example: 463ac35c9f6413ad48485a3953bb6124
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9]*$"
+          type: string
+        style: simple
+      - description: "Position of the parent operation in the trace tree. \nThe value\
+          \ is 64 bits long. The value is omitted when the span is the root of the\
+          \ trace tree.\n"
+        explode: false
+        in: header
+        name: x-b3-parentspanid
+        required: false
+        schema:
+          example: "20000000000001"
+          maxLength: 64
+          minLength: 0
+          pattern: "^[a-zA-Z0-9]*$"
+          type: string
+        style: simple
+      - description: "Position of the current operation in the trace tree. The value\
+          \ is 64 bits long. \nDo not interpret the value: it may or may not be derived\
+          \ from the value of the TraceId.\n"
+        explode: false
+        in: header
+        name: x-b3-spanid
+        required: false
+        schema:
+          example: a2fb4a1d1a96d312
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z0-9]*$"
+          type: string
+        style: simple
+      - description: "Sampling decision. Sampling is a mechanism to reduce the volume\
+          \ of data in the tracing system.\n\nIn B3, sampling applies consistently\
+          \ per-trace: once the sampling decision is made, \nthe same value must be\
+          \ consistently sent downstream. \n\nThis means that either all or no spans\
+          \ share a trace ID.\n\nThe possible values are:\n- 0 = Deny\n- 1 = Accept\n"
+        explode: false
+        in: header
+        name: x-b3-sampled
+        required: false
+        schema:
+          example: "1"
+          maxLength: 1
+          minLength: 0
+          pattern: "^[0-1]$"
+          type: string
+        style: simple
+      - description: |
+          Device information permitted for the data query.
+          You can use this parameter to apply an experience base to optimize data collection.
+        explode: false
+        in: header
+        name: x-santander-device
+        required: false
+        schema:
+          example: web
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z]*$"
+          type: string
+        style: simple
+      - description: Virtual account structure identifier
+        explode: true
+        in: query
+        name: virtual_account_structure_id
+        required: false
+        schema:
+          example: 0589bd6c-cca4-4b46-9c8a-b786171e66e0
+          maxLength: 36
+          minLength: 36
+          pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+          type: string
+        style: form
+      - description: Real account identifier
+        explode: true
+        in: query
+        name: real_account_id
+        required: false
+        schema:
+          example: 0589bd6c-cca4-4b46-9c8a-b786171e66e0
+          maxLength: 36
+          minLength: 36
+          pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+          type: string
+        style: form
+      - description: Real account type
+        explode: true
+        in: query
+        name: real_account_id_type
+        required: false
+        schema:
+          enum:
+          - iban
+          - bban
+          - uuid
+          example: iban
+          type: string
+        style: form
+      - description: "Data structure containing details of the country for the account.\
+          \ \nNecessary if accountIdType BBAN format is requested. \n\nCountry code.\
+          \ \nThe value is based on the ISO 3166-1 alpha-2 (https://www.iso.org/obp/ui/#search/code/).\n"
+        explode: true
+        in: query
+        name: real_account_id_country
+        required: false
+        schema:
+          example: GB
+          maxLength: 2
+          minLength: 2
+          pattern: "^[A-Z]*$"
+          type: string
+        style: form
+      - description: Additional Account Info
+        explode: true
+        in: query
+        name: additional_info
+        required: false
+        schema:
+          example: docs.file
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: |
+          Start date for the time period from which accounts are to be retrieved, based on the date when the accounts have been created in the system.
+          The date format is 'yyyy-MM-ddThh:mm:ss.fff±timezone', where fff are milliseconds and timezone can be 'Z' or 'hh:mm'
+        explode: true
+        in: query
+        name: from_created_at
+        required: false
+        schema:
+          example: 2017-07-21T17:32:28Z
+          format: date-time
+          type: string
+        style: form
+      - description: |
+          End date for the time period from which accounts are to be retrieved, based on the date when the accounts have been created in the system.
+          The date format is 'yyyy-MM-ddThh:mm:ss.fff±timezone', where fff are milliseconds and timezone can be 'Z' or 'hh:mm'
+        explode: true
+        in: query
+        name: to_created_at
+        required: false
+        schema:
+          example: 2017-07-21T17:32:28Z
+          format: date-time
+          type: string
+        style: form
+      - description: Name of the account type.
+        explode: true
+        in: query
+        name: accounting_name
+        required: false
+        schema:
+          example: "Client Account, Virtual Account, Virtual Account Limited"
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      - description: List of account type identifiers.
+        explode: true
+        in: query
+        name: accounting_id_list
+        required: false
+        schema:
+          example: "0589bd6c-cca4-4b46-9c8a-b786171e66e0,0689bd6c-cca4-4b46-9c8a-b786171e66e1"
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                GetAccountsResponse:
+                  $ref: '#/components/examples/GetAccountsResponse'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/AccountListResponse'
+          description: Response to a request to retrieve a transaction list
+        "204":
+          description: No content
+        "400":
+          content:
+            application/json:
+              examples:
+                INVALID_SCHEMA:
+                  $ref: '#/components/examples/Error400'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              examples:
+                UNAUTHORIZED:
+                  $ref: '#/components/examples/Error401'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              examples:
+                OPERATION_NOT_ALLOWED:
+                  $ref: '#/components/examples/Error403OperationNotAllowed'
+                  value: null
+                INVALID_AUTH_TOKEN:
+                  $ref: '#/components/examples/Error403InvalidAuthToken'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              examples:
+                NOT_FOUND:
+                  $ref: '#/components/examples/Error404'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Not found
+        "405":
+          content:
+            application/json:
+              examples:
+                METHOD_NOT_ALLOWED:
+                  $ref: '#/components/examples/Error405'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Method Not Allowed
+        "406":
+          content:
+            application/json:
+              examples:
+                NOT_ACCEPTABLE:
+                  $ref: '#/components/examples/Error406'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Not Acceptable
+        "409":
+          content:
+            application/json:
+              examples:
+                CONFLICT:
+                  $ref: '#/components/examples/Error409'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Conflict
+        "413":
+          content:
+            application/json:
+              examples:
+                PAYLOAD_TOO_LARGE:
+                  $ref: '#/components/examples/Error413'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Payload too large
+        "414":
+          content:
+            application/json:
+              examples:
+                REQUEST_URI_TOO_LONG:
+                  $ref: '#/components/examples/Error414'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: URI too large
+        "415":
+          content:
+            application/json:
+              examples:
+                UNSUPPORTED_MEDIA_TYPE:
+                  $ref: '#/components/examples/Error415'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unsupported Media Type
+        "422":
+          content:
+            application/json:
+              examples:
+                UNPROCESSABLE_ENTITY:
+                  $ref: '#/components/examples/Error422'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unprocessable Entity
+        "429":
+          content:
+            application/json:
+              examples:
+                TOO_MANY_REQUESTS:
+                  $ref: '#/components/examples/Error429'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Too Many Requests
+        "500":
+          content:
+            application/json:
+              examples:
+                INTERNAL_SERVER_ERROR:
+                  $ref: '#/components/examples/Error500'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Internal Server Error
+        "503":
+          content:
+            application/json:
+              examples:
+                SERVICE_ERROR:
+                  $ref: '#/components/examples/Error503'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Service Down Error
+        "504":
+          content:
+            application/json:
+              examples:
+                GATEWAY_TIMEOUT_ERROR:
+                  $ref: '#/components/examples/Error504'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Gateway timeout
+        default:
+          content:
+            application/json:
+              examples:
+                INTERNAL_SERVER_ERROR:
+                  $ref: '#/components/examples/Error500'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Internal Server Error
+      security:
+      - JWTProfile:
+        - accounts.read
+      - bearerJWTAuth: []
+      summary: Retrieves the eMoney accounts list of PagoNXT
+      tags:
+      - Accounts
+      x-accepts: application/json
+  /accounts/{account_id}:
+    get:
+      description: Gets account details based on an account ID.
+      operationId: getClientAccountDetails
+      parameters:
+      - description: "Number of the account. \nThe number format is defined in the\
+          \ \"account_id_type\" parameter.\n"
+        explode: false
+        in: path
+        name: account_id
+        required: true
+        schema:
+          example: 0589bd6c-cca4-4b46-9c8a-b786171e66e0
+          maxLength: 36
+          minLength: 36
+          pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+          type: string
+        style: simple
+      - description: "Format used for the account number in the 'account_id' property.\n\
+          \nThe possible values are:\n- iban = IBAN code\n- bban = Basic Bank Account\
+          \ Number (BBAN) that represents a country-specific bank account number.\
+          \ Each country has its own standards for the format and length of the BBAN.\
+          \ The value is at most 31 char or 35 bytes long.\n- uuid = Unique account\
+          \ identifier. It is an internal code to uniquely identify the account. Some\
+          \ accounts are internal so they have UUID but no IBAN/BBAN.\n\nFor example:\
+          \ \n- In UK, the BBAN format is: Sort code(6) + Account(8)\n- In Spain,\
+          \ the BBAN format: Bank(4) + Branch(4) + CheckDigit(2) + Account(10) \n\
+          - In BE, the BBAN format is: Bank(3) + Account(7) + CheckDigit(2)\n"
+        explode: true
+        in: query
+        name: account_id_type
+        required: false
+        schema:
+          enum:
+          - iban
+          - bban
+          - uuid
+          example: iban
+          type: string
+        style: form
+      - description: |
+          Data structure containing details of the country  for the account. Needed if BBAN format por the accountIdType is requested.
+
+          Country code.
+          The value is based on the ISO 3166-1 alpha-2 (https://www.iso.org/obp/ui/#search/code/).
+        explode: true
+        in: query
+        name: account_id_country
+        required: false
+        schema:
+          example: GB
+          maxLength: 2
+          minLength: 2
+          pattern: "^[A-Z]*$"
+          type: string
+        style: form
+      - description: Client ID header.
+        explode: false
+        in: header
+        name: x-santander-client-id
+        required: true
+        schema:
+          example: test
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9-]*$"
+          type: string
+        style: simple
+      - description: "Overall ID of the trace, shared by every span in the trace.\
+          \ \nThe value is 64 or 128 bits long.\n"
+        explode: false
+        in: header
+        name: x-b3-traceid
+        required: false
+        schema:
+          example: 463ac35c9f6413ad48485a3953bb6124
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9]*$"
+          type: string
+        style: simple
+      - description: "Position of the parent operation in the trace tree. \nThe value\
+          \ is 64 bits long. The value is omitted when the span is the root of the\
+          \ trace tree.\n"
+        explode: false
+        in: header
+        name: x-b3-parentspanid
+        required: false
+        schema:
+          example: "20000000000001"
+          maxLength: 64
+          minLength: 0
+          pattern: "^[a-zA-Z0-9]*$"
+          type: string
+        style: simple
+      - description: "Position of the current operation in the trace tree. The value\
+          \ is 64 bits long. \nDo not interpret the value: it may or may not be derived\
+          \ from the value of the TraceId.\n"
+        explode: false
+        in: header
+        name: x-b3-spanid
+        required: false
+        schema:
+          example: a2fb4a1d1a96d312
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z0-9]*$"
+          type: string
+        style: simple
+      - description: "Sampling decision. Sampling is a mechanism to reduce the volume\
+          \ of data in the tracing system.\n\nIn B3, sampling applies consistently\
+          \ per-trace: once the sampling decision is made, \nthe same value must be\
+          \ consistently sent downstream. \n\nThis means that either all or no spans\
+          \ share a trace ID.\n\nThe possible values are:\n- 0 = Deny\n- 1 = Accept\n"
+        explode: false
+        in: header
+        name: x-b3-sampled
+        required: false
+        schema:
+          example: "1"
+          maxLength: 1
+          minLength: 0
+          pattern: "^[0-1]$"
+          type: string
+        style: simple
+      - description: |
+          Device information permitted for the data query.
+          You can use this parameter to apply an experience base to optimize data collection.
+        explode: false
+        in: header
+        name: x-santander-device
+        required: false
+        schema:
+          example: web
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z]*$"
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                GetAccountsDetailsResponse:
+                  $ref: '#/components/examples/GetAccountsDetailsResponse'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/AccountDetailsResponse'
+          description: Example response
+        "204":
+          description: No content
+        "400":
+          content:
+            application/json:
+              examples:
+                INVALID_SCHEMA:
+                  $ref: '#/components/examples/Error400'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              examples:
+                UNAUTHORIZED:
+                  $ref: '#/components/examples/Error401'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              examples:
+                OPERATION_NOT_ALLOWED:
+                  $ref: '#/components/examples/Error403OperationNotAllowed'
+                  value: null
+                INVALID_AUTH_TOKEN:
+                  $ref: '#/components/examples/Error403InvalidAuthToken'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              examples:
+                NOT_FOUND:
+                  $ref: '#/components/examples/Error404'
+                  value: null
+                ACCOUNT_NOT_FOUND:
+                  $ref: '#/components/examples/Error404AccountNotFound'
+                  value: null
+                REAL_ACCOUNT_VIRTUAL_STRUCTURE_NOT_EXIST:
+                  $ref: '#/components/examples/Error404RealAccountVirtualStructureNotExist'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: The account does not exist in the system.
+        "405":
+          content:
+            application/json:
+              examples:
+                METHOD_NOT_ALLOWED:
+                  $ref: '#/components/examples/Error405'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Method Not Allowed
+        "406":
+          content:
+            application/json:
+              examples:
+                NOT_ACCEPTABLE:
+                  $ref: '#/components/examples/Error406'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Not Acceptable
+        "409":
+          content:
+            application/json:
+              examples:
+                CONFLICT:
+                  $ref: '#/components/examples/Error409'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Conflict
+        "413":
+          content:
+            application/json:
+              examples:
+                PAYLOAD_TOO_LARGE:
+                  $ref: '#/components/examples/Error413'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Payload too large
+        "414":
+          content:
+            application/json:
+              examples:
+                REQUEST_URI_TOO_LONG:
+                  $ref: '#/components/examples/Error414'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: URI too large
+        "415":
+          content:
+            application/json:
+              examples:
+                UNSUPPORTED_MEDIA_TYPE:
+                  $ref: '#/components/examples/Error415'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unsupported Media Type
+        "422":
+          content:
+            application/json:
+              examples:
+                UNPROCESSABLE_ENTITY:
+                  $ref: '#/components/examples/Error422'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unprocessable Entity
+        "429":
+          content:
+            application/json:
+              examples:
+                TOO_MANY_REQUESTS:
+                  $ref: '#/components/examples/Error429'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Too Many Requests
+        "500":
+          content:
+            application/json:
+              examples:
+                INTERNAL_SERVER_ERROR:
+                  $ref: '#/components/examples/Error500'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Internal Server Error
+        "503":
+          content:
+            application/json:
+              examples:
+                SERVICE_ERROR:
+                  $ref: '#/components/examples/Error503'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Service Down Error
+        "504":
+          content:
+            application/json:
+              examples:
+                GATEWAY_TIMEOUT_ERROR:
+                  $ref: '#/components/examples/Error504'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Gateway timeout
+        default:
+          content:
+            application/json:
+              examples:
+                INTERNAL_SERVER_ERROR:
+                  $ref: '#/components/examples/Error500'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Internal Server Error
+      security:
+      - JWTProfile:
+        - accounts.read
+      - bearerJWTAuth: []
+      summary: Get account details
+      tags:
+      - Accounts
+      x-accepts: application/json
+  /accounts/{account_id}/verifications:
+    get:
+      description: Retrieves information from the account given an accountId.
+      operationId: getAccountVerifications
+      parameters:
+      - description: "Number of the account. \nThe number format is defined in the\
+          \ \"account_id_type\" parameter.\n"
+        explode: false
+        in: path
+        name: account_id
+        required: true
+        schema:
+          example: 0589bd6c-cca4-4b46-9c8a-b786171e66e0
+          maxLength: 36
+          minLength: 36
+          pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+          type: string
+        style: simple
+      - description: "Format used for the account number in the 'account_id' property.\n\
+          \nThe possible values are:\n- iban = IBAN code\n- bban = Basic Bank Account\
+          \ Number (BBAN) that represents a country-specific bank account number.\
+          \ Each country has its own standards for the format and length of the BBAN.\
+          \ The value is at most 31 char or 35 bytes long.\n- uuid = Unique account\
+          \ identifier. It is an internal code to uniquely identify the account. Some\
+          \ accounts are internal so they have UUID but no IBAN/BBAN.\n\nFor example:\
+          \ \n- In UK, the BBAN format is: Sort code(6) + Account(8)\n- In Spain,\
+          \ the BBAN format: Bank(4) + Branch(4) + CheckDigit(2) + Account(10) \n\
+          - In BE, the BBAN format is: Bank(3) + Account(7) + CheckDigit(2)\n"
+        explode: true
+        in: query
+        name: account_id_type
+        required: false
+        schema:
+          enum:
+          - iban
+          - bban
+          - uuid
+          example: iban
+          type: string
+        style: form
+      - description: |
+          Data structure containing details of the country  for the account. Needed if BBAN format por the accountIdType is requested.
+
+          Country code.
+          The value is based on the ISO 3166-1 alpha-2 (https://www.iso.org/obp/ui/#search/code/).
+        explode: true
+        in: query
+        name: account_id_country
+        required: false
+        schema:
+          example: GB
+          maxLength: 2
+          minLength: 2
+          pattern: "^[A-Z]*$"
+          type: string
+        style: form
+      - description: Client ID header.
+        explode: false
+        in: header
+        name: x-santander-client-id
+        required: true
+        schema:
+          example: test
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9-]*$"
+          type: string
+        style: simple
+      - description: "Overall ID of the trace, shared by every span in the trace.\
+          \ \nThe value is 64 or 128 bits long.\n"
+        explode: false
+        in: header
+        name: x-b3-traceid
+        required: false
+        schema:
+          example: 463ac35c9f6413ad48485a3953bb6124
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9]*$"
+          type: string
+        style: simple
+      - description: "Position of the parent operation in the trace tree. \nThe value\
+          \ is 64 bits long. The value is omitted when the span is the root of the\
+          \ trace tree.\n"
+        explode: false
+        in: header
+        name: x-b3-parentspanid
+        required: false
+        schema:
+          example: "20000000000001"
+          maxLength: 64
+          minLength: 0
+          pattern: "^[a-zA-Z0-9]*$"
+          type: string
+        style: simple
+      - description: "Position of the current operation in the trace tree. The value\
+          \ is 64 bits long. \nDo not interpret the value: it may or may not be derived\
+          \ from the value of the TraceId.\n"
+        explode: false
+        in: header
+        name: x-b3-spanid
+        required: false
+        schema:
+          example: a2fb4a1d1a96d312
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z0-9]*$"
+          type: string
+        style: simple
+      - description: "Sampling decision. Sampling is a mechanism to reduce the volume\
+          \ of data in the tracing system.\n\nIn B3, sampling applies consistently\
+          \ per-trace: once the sampling decision is made, \nthe same value must be\
+          \ consistently sent downstream. \n\nThis means that either all or no spans\
+          \ share a trace ID.\n\nThe possible values are:\n- 0 = Deny\n- 1 = Accept\n"
+        explode: false
+        in: header
+        name: x-b3-sampled
+        required: false
+        schema:
+          example: "1"
+          maxLength: 1
+          minLength: 0
+          pattern: "^[0-1]$"
+          type: string
+        style: simple
+      - description: |
+          Device information permitted for the data query.
+          You can use this parameter to apply an experience base to optimize data collection.
+        explode: false
+        in: header
+        name: x-santander-device
+        required: false
+        schema:
+          example: web
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z]*$"
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                GetAccountVerificationsResponse:
+                  $ref: '#/components/examples/GetAccountVerificationsResponse'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/AccountVerificationsResponse'
+          description: Returns an OK. Account verifications are retrieved.
+        "204":
+          description: No content
+        "400":
+          content:
+            application/json:
+              examples:
+                INVALID_SCHEMA:
+                  $ref: '#/components/examples/Error400'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              examples:
+                UNAUTHORIZED:
+                  $ref: '#/components/examples/Error401'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              examples:
+                OPERATION_NOT_ALLOWED:
+                  $ref: '#/components/examples/Error403OperationNotAllowed'
+                  value: null
+                INVALID_AUTH_TOKEN:
+                  $ref: '#/components/examples/Error403InvalidAuthToken'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              examples:
+                ACCOUNT_NOT_FOUND:
+                  $ref: '#/components/examples/Error404AccountNotFound'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: The account does not exist.
+        "405":
+          content:
+            application/json:
+              examples:
+                METHOD_NOT_ALLOWED:
+                  $ref: '#/components/examples/Error405'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Method Not Allowed
+        "406":
+          content:
+            application/json:
+              examples:
+                NOT_ACCEPTABLE:
+                  $ref: '#/components/examples/Error406'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Not Acceptable
+        "409":
+          content:
+            application/json:
+              examples:
+                CONFLICT:
+                  $ref: '#/components/examples/Error409'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Conflict
+        "413":
+          content:
+            application/json:
+              examples:
+                PAYLOAD_TOO_LARGE:
+                  $ref: '#/components/examples/Error413'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Payload too large
+        "414":
+          content:
+            application/json:
+              examples:
+                REQUEST_URI_TOO_LONG:
+                  $ref: '#/components/examples/Error414'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: URI too large
+        "415":
+          content:
+            application/json:
+              examples:
+                UNSUPPORTED_MEDIA_TYPE:
+                  $ref: '#/components/examples/Error415'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unsupported Media Type
+        "422":
+          content:
+            application/json:
+              examples:
+                UNPROCESSABLE_ENTITY:
+                  $ref: '#/components/examples/Error422'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Unprocessable Entity
+        "429":
+          content:
+            application/json:
+              examples:
+                TOO_MANY_REQUESTS:
+                  $ref: '#/components/examples/Error429'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Too Many Requests
+        "500":
+          content:
+            application/json:
+              examples:
+                INTERNAL_SERVER_ERROR:
+                  $ref: '#/components/examples/Error500'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Internal Server Error
+        "503":
+          content:
+            application/json:
+              examples:
+                SERVICE_ERROR:
+                  $ref: '#/components/examples/Error503'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Service Down Error
+        "504":
+          content:
+            application/json:
+              examples:
+                GATEWAY_TIMEOUT_ERROR:
+                  $ref: '#/components/examples/Error504'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Gateway timeout
+        default:
+          content:
+            application/json:
+              examples:
+                INTERNAL_SERVER_ERROR:
+                  $ref: '#/components/examples/Error500'
+                  value: null
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+          description: Internal Server Error
+      security:
+      - JWTProfile:
+        - accounts.read
+      - bearerJWTAuth: []
+      summary: Get account verifications
+      tags:
+      - Accounts
+      x-accepts: application/json
+components:
+  examples:
+    Error400:
+      value:
+        errors:
+        - code: INVALID_SCHEMA
+          message: Invalid input.
+          level: ERROR
+          description: Error validating schema
+    Error401:
+      value:
+        errors:
+        - code: UNAUTHORIZED
+          message: A token must be provided.
+          level: ERROR
+          description: Unauthorized
+    Error403OperationNotAllowed:
+      value:
+        errors:
+        - code: OPERATION_NOT_ALLOWED
+          message: operation not allowed due to lack of permissions.
+          level: ERROR
+          description: Operation not allowed
+    Error403InvalidAuthToken:
+      value:
+        errors:
+        - code: INVALID_AUTH_TOKEN
+          message: The token provided is invalid.
+          level: ERROR
+          description: Invalid auth token
+    Error500:
+      value:
+        errors:
+        - code: INTERNAL_SERVER_ERROR
+          message: Internal Server Error.
+          level: ERROR
+          description: The server has encountered a situation it does not know how
+            to handle.
+    Error503:
+      value:
+        errors:
+        - code: SERVICE_DOWN_ERROR
+          message: Service down error.
+          level: ERROR
+          description: Service down error
+    Error504:
+      value:
+        errors:
+        - code: GATEWAY_TIMEOUT_ERROR
+          message: Gateway timeout error.
+          level: ERROR
+          description: Gateway timeout error
+    Error404:
+      value:
+        errors:
+        - code: NOT_FOUND
+          level: ERROR
+          message: Not found.
+          description: Not found
+    Error405:
+      value:
+        errors:
+        - code: METHOD_NOT_ALLOWED
+          level: ERROR
+          message: Method not allowed
+          description: The request method is known by the server but is not supported
+            by the target resource.
+    Error406:
+      value:
+        errors:
+        - code: NOT_ACCEPTABLE
+          level: ERROR
+          message: Not Acceptable
+          description: "This response is sent when the web server, after performing\
+            \ server-driven content negotiation, doesn't find any content that conforms\
+            \ to the criteria given by the user agent."
+    Error409:
+      value:
+        errors:
+        - code: CONFLICT
+          level: ERROR
+          message: Conflict
+          description: This response is sent when a request conflicts with the current
+            state of the server.
+    Error413:
+      value:
+        errors:
+        - code: PAYLOAD_TOO_LARGE
+          level: ERROR
+          message: Payload too large
+          description: Request entity is larger than limits defined by server. The
+            server might close the connection or return an Retry-After header field.
+    Error414:
+      value:
+        errors:
+        - code: URI_TOO_LARGE
+          level: ERROR
+          message: URI too large
+          description: The URI requested by the client is longer than the server is
+            willing to interpret.
+    Error415:
+      value:
+        errors:
+        - code: UNSUPPORTED_MEDIA_TYPE
+          level: ERROR
+          message: Unsupported Media Type
+          description: "The media format of the requested data is not supported by\
+            \ the server, so the server is rejecting the request."
+    Error422:
+      value:
+        errors:
+        - code: UNPROCESSABLE_ENTITY
+          level: ERROR
+          message: Unprocessable entity.
+          description: The request was well-formed but was unable to be followed due
+            to semantic errors.
+    Error429:
+      value:
+        errors:
+        - code: TOO_MANY_REQUESTS
+          level: ERROR
+          message: Too many requests.
+          description: The user has sent too many requests in a given amount of time.
+    Error404AccountNotFound:
+      value:
+        errors:
+        - code: ACCOUNT_NOT_FOUND
+          level: ERROR
+          message: Account not found.
+          description: The data related to the account with identifier "a26c7fc3-3f9b-4045-a946-24e565bee1f9"
+            could not be found.
+    Error404RealAccountVirtualStructureNotExist:
+      value:
+        errors:
+        - code: REAL_ACCOUNT_VIRTUAL_STRUCTURE_NOT_EXIST
+          level: ERROR
+          message: Real account has no virtual account structure
+          description: This account with an uuid "698b21e5-016f-487c-b0a7-bb86772f126f"
+            has no  virtual structure id
+    GetAccountsResponse:
+      value:
+        accountsList:
+        - accountDetails:
+            displayNumber: '*0022'
+            nickName: My eMoney Account
+            baseCurrency: GBP
+            status: Open
+            accountIdentifiersList:
+            - accountIdType: iban
+              accountId: GB40PNXT09991100000022
+              country: GB
+            customer:
+              customerId: PNXTGB2LXXXUK1234567891
+              segmentCode: sme
+              customerName: Customer Company Name
+            productId: 42dbdc87-a491-4566-bb97-eb2d9aea4707
+            productName: eMoney Account
+            accounting:
+              accountingId: client_account
+              accountingName: Client Account
+            legalEntity:
+              bic: PNXTGB2LXXX
+              legalEntityId: pagonxt_uk
+              legalEntityName: PagoNxt OneTrade UK Ltd
+            balances:
+              current:
+                amount:
+                  amount: 99.99
+                  currency: GBP
+                lastChangeDateTime: 2021-07-21T17:32:28.000Z
+              consolidated:
+                amount:
+                  amount: 99.99
+                  currency: GBP
+                lastChangeDateTime: 2021-07-21T17:32:28.000Z
+              pendingConsolidation:
+                amount:
+                  amount: 99.99
+                  currency: GBP
+                lastChangeDateTime: 2021-07-21T17:32:28.000Z
+              withholding:
+                amount:
+                  amount: 99.99
+                  currency: GBP
+                lastChangeDateTime: 2021-07-21T17:32:28.000Z
+              overdraft:
+                amount:
+                  amount: 99.99
+                  currency: GBP
+                lastChangeDateTime: 2021-07-21T17:32:28.000Z
+              limit:
+                amount:
+                  amount: 99.99
+                  currency: GBP
+                lastChangeDateTime: 2021-07-21T17:32:28.000Z
+              available:
+                amount:
+                  amount: 99.99
+                  currency: GBP
+                lastChangeDateTime: 2021-07-21T17:32:28.000Z
+              realAccountAvailable:
+                amount:
+                  amount: 99.99
+                  currency: GBP
+                lastChangeDateTime: 2021-07-21T17:32:28.000Z
+            openingDateTime: 2021-07-21T17:32:28.000Z
+            lastUpdateDateTime: 2021-07-21T17:32:28.000Z
+            closingDateTime: 2021-07-21T17:32:28.000Z
+            additionalInfo: {}
+          accountDetailsLink: /accounts/0589bd6c-cca4-4b46-9c8a-b786171e66e1?account_id_type=uuid
+          transactionsListLink: /accounts/0589bd6c-cca4-4b46-9c8a-b786171e66e1transactions?account_id_type=uuid
+        _links:
+          _first: /accounts?_offset=0&_limit=10
+          _prev: /accounts?_offset=10&_limit=10
+          _next: /accounts?_offset=30&_limit=10
+          _last: /accounts?_offset=40&_limit=10
+        _count: 1
+    GetAccountsDetailsResponse:
+      value:
+        accountDetails:
+          displayNumber: '*0022'
+          nickName: My eMoney Account
+          baseCurrency: GBP
+          status: Open
+          accountIdentifiersList:
+          - accountIdType: iban
+            accountId: GB40PNXT09991100000022
+            country: GB
+          customer:
+            customerId: PNXTGB2LXXXUK1234567891
+            segmentCode: sme
+            customerName: Customer Company Name
+          productId: 42dbdc87-a491-4566-bb97-eb2d9aea4707
+          productName: eMoney Account
+          accounting:
+            accountingId: client_account
+            accountingName: Client Account
+          legalEntity:
+            bic: PNXTGB2LXXX
+            legalEntityId: pagonxt_uk
+            legalEntityName: PagoNxt OneTrade UK Ltd
+          balances:
+            current:
+              amount:
+                amount: 99.99
+                currency: GBP
+              lastChangeDateTime: 2021-07-21T17:32:28.000Z
+            consolidated:
+              amount:
+                amount: 99.99
+                currency: GBP
+              lastChangeDateTime: 2021-07-21T17:32:28.000Z
+            pendingConsolidation:
+              amount:
+                amount: 99.99
+                currency: GBP
+              lastChangeDateTime: 2021-07-21T17:32:28.000Z
+            withholding:
+              amount:
+                amount: 99.99
+                currency: GBP
+              lastChangeDateTime: 2021-07-21T17:32:28.000Z
+            overdraft:
+              amount:
+                amount: 99.99
+                currency: GBP
+              lastChangeDateTime: 2021-07-21T17:32:28.000Z
+            limit:
+              amount:
+                amount: 99.99
+                currency: GBP
+              lastChangeDateTime: 2021-07-21T17:32:28.000Z
+            available:
+              amount:
+                amount: 99.99
+                currency: GBP
+              lastChangeDateTime: 2021-07-21T17:32:28.000Z
+            realAccountAvailable:
+              amount:
+                amount: 99.99
+                currency: GBP
+              lastChangeDateTime: 2021-07-21T17:32:28.000Z
+          openingDateTime: 2017-07-21T17:32:28.000Z
+          lastUpdateDateTime: 2017-07-21T17:32:28.000Z
+          closingDateTime: 2017-07-21T17:32:28.000Z
+          additionalInfo: {}
+        transactionsListLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+        accountDetailsLink: "null"
+    GetAccountVerificationsResponse:
+      value:
+        accountVerifications:
+          status: Blocked-DR
+          baseCurrency: GBP
+          customer:
+            customerId: PNXTGB2LXXXUK1234567891
+            segmentCode: sme
+            customerName: Customer Company Name
+          virtualAccountStructureId: b7ffb927-d15d-4d26-a384-ecbf46c1eebf
+          accounting:
+            accountingId: client_account
+            accountingName: Client Account
+  parameters:
+    _limit:
+      description: Number of values that should be informed per page
+      explode: true
+      in: query
+      name: _limit
+      required: false
+      schema:
+        example: 10
+        format: integer
+        maximum: 200
+        minimum: 1
+        type: number
+      style: form
+    _offset:
+      description: Pagination identifier
+      explode: true
+      in: query
+      name: _offset
+      required: false
+      schema:
+        example: 0
+        format: integer
+        maximum: 500
+        minimum: 0
+        type: number
+      style: form
+    account_id:
+      description: "Number of the account. \nThe number format is defined in the \"\
+        account_id_type\" parameter.\n"
+      explode: false
+      in: path
+      name: account_id
+      required: true
+      schema:
+        example: 0589bd6c-cca4-4b46-9c8a-b786171e66e0
+        maxLength: 36
+        minLength: 36
+        pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+        type: string
+      style: simple
+    account_id_country:
+      description: |
+        Data structure containing details of the country  for the account. Needed if BBAN format por the accountIdType is requested.
+
+        Country code.
+        The value is based on the ISO 3166-1 alpha-2 (https://www.iso.org/obp/ui/#search/code/).
+      explode: true
+      in: query
+      name: account_id_country
+      required: false
+      schema:
+        example: GB
+        maxLength: 2
+        minLength: 2
+        pattern: "^[A-Z]*$"
+        type: string
+      style: form
+    account_id_type:
+      description: "Format used for the account number in the 'account_id' property.\n\
+        \nThe possible values are:\n- iban = IBAN code\n- bban = Basic Bank Account\
+        \ Number (BBAN) that represents a country-specific bank account number. Each\
+        \ country has its own standards for the format and length of the BBAN. The\
+        \ value is at most 31 char or 35 bytes long.\n- uuid = Unique account identifier.\
+        \ It is an internal code to uniquely identify the account. Some accounts are\
+        \ internal so they have UUID but no IBAN/BBAN.\n\nFor example: \n- In UK,\
+        \ the BBAN format is: Sort code(6) + Account(8)\n- In Spain, the BBAN format:\
+        \ Bank(4) + Branch(4) + CheckDigit(2) + Account(10) \n- In BE, the BBAN format\
+        \ is: Bank(3) + Account(7) + CheckDigit(2)\n"
+      explode: true
+      in: query
+      name: account_id_type
+      required: false
+      schema:
+        enum:
+        - iban
+        - bban
+        - uuid
+        example: iban
+        type: string
+      style: form
+    x-b3-parentspanid:
+      description: "Position of the parent operation in the trace tree. \nThe value\
+        \ is 64 bits long. The value is omitted when the span is the root of the trace\
+        \ tree.\n"
+      explode: false
+      in: header
+      name: x-b3-parentspanid
+      required: false
+      schema:
+        example: "20000000000001"
+        maxLength: 64
+        minLength: 0
+        pattern: "^[a-zA-Z0-9]*$"
+        type: string
+      style: simple
+    x-b3-sampled:
+      description: "Sampling decision. Sampling is a mechanism to reduce the volume\
+        \ of data in the tracing system.\n\nIn B3, sampling applies consistently per-trace:\
+        \ once the sampling decision is made, \nthe same value must be consistently\
+        \ sent downstream. \n\nThis means that either all or no spans share a trace\
+        \ ID.\n\nThe possible values are:\n- 0 = Deny\n- 1 = Accept\n"
+      explode: false
+      in: header
+      name: x-b3-sampled
+      required: false
+      schema:
+        example: "1"
+        maxLength: 1
+        minLength: 0
+        pattern: "^[0-1]$"
+        type: string
+      style: simple
+    x-b3-spanid:
+      description: "Position of the current operation in the trace tree. The value\
+        \ is 64 bits long. \nDo not interpret the value: it may or may not be derived\
+        \ from the value of the TraceId.\n"
+      explode: false
+      in: header
+      name: x-b3-spanid
+      required: false
+      schema:
+        example: a2fb4a1d1a96d312
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z0-9]*$"
+        type: string
+      style: simple
+    x-b3-traceid:
+      description: "Overall ID of the trace, shared by every span in the trace. \n\
+        The value is 64 or 128 bits long.\n"
+      explode: false
+      in: header
+      name: x-b3-traceid
+      required: false
+      schema:
+        example: 463ac35c9f6413ad48485a3953bb6124
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9]*$"
+        type: string
+      style: simple
+    x-santander-client-id:
+      description: Client ID header.
+      explode: false
+      in: header
+      name: x-santander-client-id
+      required: true
+      schema:
+        example: test
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9-]*$"
+        type: string
+      style: simple
+    x-santander-device:
+      description: |
+        Device information permitted for the data query.
+        You can use this parameter to apply an experience base to optimize data collection.
+      explode: false
+      in: header
+      name: x-santander-device
+      required: false
+      schema:
+        example: web
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z]*$"
+        type: string
+      style: simple
+    _expand:
+      description: "Whether balances are to be included in the response.\n\nIf the\
+        \ value is 'balances', the response includes the following balance types are:\
+        \ \n- consolidated  \n- pendingConsolidation  \n- withholding  \n- overdraft\
+        \  \n- limit  \n- available  \n- current\n\nThe default value is empty and\
+        \ returns no balances.\n"
+      explode: true
+      in: query
+      name: _expand
+      required: false
+      schema:
+        example: balances
+        maxLength: 8
+        minLength: 8
+        pattern: ^(balances)$
+        type: string
+      style: form
+    status:
+      description: |
+        Status of the accounts to be included in the response.
+        The possible values are a comma separated list of:
+        - Open = Account is open and movements are restricted only by the customer's available balance and account contract attributes. This includes accounts with warnings.
+        - Blocked = Account has some restrictive block.
+        - Closed = Account is closed.
+      explode: true
+      in: query
+      name: status
+      required: false
+      schema:
+        enum:
+        - Open
+        - Closed
+        - Blocked
+        example: Open
+        type: string
+      style: form
+    historical:
+      description: "Whether closed accounts are included in the response.\nThe possible\
+        \ values are:\n- true = Accounts with closed status are included\n- false\
+        \ = Accounts with closed status are not included  \n\nThe default value is\
+        \ true. If the 'status' parameter is provided, this parameter must not be\
+        \ used.\n"
+      explode: true
+      in: query
+      name: historical
+      required: false
+      schema:
+        example: true
+        type: boolean
+      style: form
+    accounts_list:
+      description: "List of accounts to be included in the response.\nThe accounts\
+        \ must be defined with comma-separated account numbers without blank spaces.\
+        \ \n\nAll accounts must be identified using the account number format defined\
+        \ in the 'accountIdType' parameter.\nThe maximum number of included accounts\
+        \ is 20. \n\nIf you want data about more than 20 accounts, call the API multiple\
+        \ times, for 20 accounts at a time.\n"
+      explode: true
+      in: query
+      name: accounts_list
+      required: false
+      schema:
+        example: "account1,account2,account3,account4,account5"
+        maxLength: 255
+        minLength: 1
+        pattern: "^[a-zA-Z_0-9_@,/#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    customer_name:
+      description: Customer name associated with the account.
+      explode: true
+      in: query
+      name: customer_name
+      required: false
+      schema:
+        example: Customer Company Name
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    legal_entity_name:
+      description: Legal Name of the legal entity associated with the account.
+      explode: true
+      in: query
+      name: legal_entity_name
+      required: false
+      schema:
+        example: PagoNxt OneTrade UK Ltd
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    legal_entity_short_code_list:
+      description: Short code list of the legal entities associated with the account.
+      explode: true
+      in: query
+      name: legal_entity_short_code_list
+      required: false
+      schema:
+        example: "pagofx_uk,pagonxt_es"
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    product_id_list:
+      description: Unique identifiers of products associated with an account.
+      explode: true
+      in: query
+      name: product_id_list
+      required: false
+      schema:
+        example: "42dbdc87-a491-4566-bb97-eb2d9aea4707,2fb17fee-5f47-4bb5-b179-14e0800beceb"
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    product_name:
+      description: Name of the product associated with the account.
+      explode: true
+      in: query
+      name: product_name
+      required: false
+      schema:
+        example: eMoney Account
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    nickname:
+      description: It is an alias of account name the customer has assigned to the
+        account for easy identification.
+      explode: true
+      in: query
+      name: nickname
+      required: false
+      schema:
+        example: Test nickname
+        maxLength: 255
+        minLength: 1
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    _sortGetAccounts:
+      description: "Sorting order for the retrieved accounts.\n\nThe possible values\
+        \ are:\n- +product_name = ascending by product_name  \n- -product_name = descending\
+        \ by product_name  \n- +customer_name = ascending by customer_name  \n- -customer_name\
+        \ = descending by customer_name  \n- +opening_date_time = ascending by opening_date_time\
+        \  \n- -opening_date_time = descending by opening_date_time  \n- +last_update_date_time\
+        \ = ascending by last_update_date_time  \n- -last_update_date_time = descending\
+        \ by last_update_date_time  \n- +closing_date_time = ascending by closing_date_time\
+        \  \n- -closing_date_time = descending by closing_date_time\n\nIf the value\
+        \ is omitted, the default value is '-opening_date_time'.\n"
+      explode: true
+      in: query
+      name: _sort
+      required: false
+      schema:
+        enum:
+        - -product_name
+        - +product_name
+        - -customer_name
+        - +customer_name
+        - -opening_date_time
+        - +opening_date_time
+        - -last_update_date_time
+        - +last_update_date_time
+        - -closing_date_time
+        - +closing_date_time
+        example: -product_name
+        type: string
+      style: form
+    virtual_account_structure_id:
+      description: Virtual account structure identifier
+      explode: true
+      in: query
+      name: virtual_account_structure_id
+      required: false
+      schema:
+        example: 0589bd6c-cca4-4b46-9c8a-b786171e66e0
+        maxLength: 36
+        minLength: 36
+        pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+        type: string
+      style: form
+    real_account_id:
+      description: Real account identifier
+      explode: true
+      in: query
+      name: real_account_id
+      required: false
+      schema:
+        example: 0589bd6c-cca4-4b46-9c8a-b786171e66e0
+        maxLength: 36
+        minLength: 36
+        pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+        type: string
+      style: form
+    real_account_id_type:
+      description: Real account type
+      explode: true
+      in: query
+      name: real_account_id_type
+      required: false
+      schema:
+        enum:
+        - iban
+        - bban
+        - uuid
+        example: iban
+        type: string
+      style: form
+    real_account_id_country:
+      description: "Data structure containing details of the country for the account.\
+        \ \nNecessary if accountIdType BBAN format is requested. \n\nCountry code.\
+        \ \nThe value is based on the ISO 3166-1 alpha-2 (https://www.iso.org/obp/ui/#search/code/).\n"
+      explode: true
+      in: query
+      name: real_account_id_country
+      required: false
+      schema:
+        example: GB
+        maxLength: 2
+        minLength: 2
+        pattern: "^[A-Z]*$"
+        type: string
+      style: form
+    additional_info:
+      description: Additional Account Info
+      explode: true
+      in: query
+      name: additional_info
+      required: false
+      schema:
+        example: docs.file
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    from_created_at:
+      description: |
+        Start date for the time period from which accounts are to be retrieved, based on the date when the accounts have been created in the system.
+        The date format is 'yyyy-MM-ddThh:mm:ss.fff±timezone', where fff are milliseconds and timezone can be 'Z' or 'hh:mm'
+      explode: true
+      in: query
+      name: from_created_at
+      required: false
+      schema:
+        example: 2017-07-21T17:32:28Z
+        format: date-time
+        type: string
+      style: form
+    to_created_at:
+      description: |
+        End date for the time period from which accounts are to be retrieved, based on the date when the accounts have been created in the system.
+        The date format is 'yyyy-MM-ddThh:mm:ss.fff±timezone', where fff are milliseconds and timezone can be 'Z' or 'hh:mm'
+      explode: true
+      in: query
+      name: to_created_at
+      required: false
+      schema:
+        example: 2017-07-21T17:32:28Z
+        format: date-time
+        type: string
+      style: form
+    accounting_name:
+      description: Name of the account type.
+      explode: true
+      in: query
+      name: accounting_name
+      required: false
+      schema:
+        example: "Client Account, Virtual Account, Virtual Account Limited"
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    accounting_id_list:
+      description: List of account type identifiers.
+      explode: true
+      in: query
+      name: accounting_id_list
+      required: false
+      schema:
+        example: "0589bd6c-cca4-4b46-9c8a-b786171e66e0,0689bd6c-cca4-4b46-9c8a-b786171e66e1"
+        maxLength: 255
+        minLength: 1
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+    customer_id:
+      description: Customer identifier
+      explode: true
+      in: query
+      name: customer_id
+      required: false
+      schema:
+        example: pagofx_ukGBDTT667794
+        maxLength: 255
+        minLength: 0
+        pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+        type: string
+      style: form
+  responses:
+    AccountResponse404:
+      content:
+        application/json:
+          examples:
+            NOT_FOUND:
+              $ref: '#/components/examples/Error404'
+              value: null
+            ACCOUNT_NOT_FOUND:
+              $ref: '#/components/examples/Error404AccountNotFound'
+              value: null
+            REAL_ACCOUNT_VIRTUAL_STRUCTURE_NOT_EXIST:
+              $ref: '#/components/examples/Error404RealAccountVirtualStructureNotExist'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: The account does not exist in the system.
+    Error400:
+      content:
+        application/json:
+          examples:
+            INVALID_SCHEMA:
+              $ref: '#/components/examples/Error400'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Bad Request
+    Error401:
+      content:
+        application/json:
+          examples:
+            UNAUTHORIZED:
+              $ref: '#/components/examples/Error401'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Unauthorized
+    Error403:
+      content:
+        application/json:
+          examples:
+            OPERATION_NOT_ALLOWED:
+              $ref: '#/components/examples/Error403OperationNotAllowed'
+              value: null
+            INVALID_AUTH_TOKEN:
+              $ref: '#/components/examples/Error403InvalidAuthToken'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Forbidden
+    Error404:
+      content:
+        application/json:
+          examples:
+            NOT_FOUND:
+              $ref: '#/components/examples/Error404'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Not found
+    Error405:
+      content:
+        application/json:
+          examples:
+            METHOD_NOT_ALLOWED:
+              $ref: '#/components/examples/Error405'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Method Not Allowed
+    Error406:
+      content:
+        application/json:
+          examples:
+            NOT_ACCEPTABLE:
+              $ref: '#/components/examples/Error406'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Not Acceptable
+    Error409:
+      content:
+        application/json:
+          examples:
+            CONFLICT:
+              $ref: '#/components/examples/Error409'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Conflict
+    Error413:
+      content:
+        application/json:
+          examples:
+            PAYLOAD_TOO_LARGE:
+              $ref: '#/components/examples/Error413'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Payload too large
+    Error414:
+      content:
+        application/json:
+          examples:
+            REQUEST_URI_TOO_LONG:
+              $ref: '#/components/examples/Error414'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: URI too large
+    Error415:
+      content:
+        application/json:
+          examples:
+            UNSUPPORTED_MEDIA_TYPE:
+              $ref: '#/components/examples/Error415'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Unsupported Media Type
+    Error422:
+      content:
+        application/json:
+          examples:
+            UNPROCESSABLE_ENTITY:
+              $ref: '#/components/examples/Error422'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Unprocessable Entity
+    Error429:
+      content:
+        application/json:
+          examples:
+            TOO_MANY_REQUESTS:
+              $ref: '#/components/examples/Error429'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Too Many Requests
+    Error500:
+      content:
+        application/json:
+          examples:
+            INTERNAL_SERVER_ERROR:
+              $ref: '#/components/examples/Error500'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Internal Server Error
+    Error503:
+      content:
+        application/json:
+          examples:
+            SERVICE_ERROR:
+              $ref: '#/components/examples/Error503'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Service Down Error
+    Error504:
+      content:
+        application/json:
+          examples:
+            GATEWAY_TIMEOUT_ERROR:
+              $ref: '#/components/examples/Error504'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: Gateway timeout
+    GetAccountsResponse200:
+      content:
+        application/json:
+          examples:
+            GetAccountsResponse:
+              $ref: '#/components/examples/GetAccountsResponse'
+              value: null
+          schema:
+            $ref: '#/components/schemas/AccountListResponse'
+      description: Response to a request to retrieve a transaction list
+    GetAccountDetailsResponse200:
+      content:
+        application/json:
+          examples:
+            GetAccountsDetailsResponse:
+              $ref: '#/components/examples/GetAccountsDetailsResponse'
+              value: null
+          schema:
+            $ref: '#/components/schemas/AccountDetailsResponse'
+      description: Example response
+    GetAccountVerificationsResponse200:
+      content:
+        application/json:
+          examples:
+            GetAccountVerificationsResponse:
+              $ref: '#/components/examples/GetAccountVerificationsResponse'
+              value: null
+          schema:
+            $ref: '#/components/schemas/AccountVerificationsResponse'
+      description: Returns an OK. Account verifications are retrieved.
+    GetAccountVerificationsResponse404:
+      content:
+        application/json:
+          examples:
+            ACCOUNT_NOT_FOUND:
+              $ref: '#/components/examples/Error404AccountNotFound'
+              value: null
+          schema:
+            $ref: '#/components/schemas/ResponseErrors'
+      description: The account does not exist.
+    Status204:
+      description: No content
+  schemas:
+    Error:
+      additionalProperties: false
+      description: Data structure containing the error details
+      properties:
+        code:
+          description: Unique alphanumeric human readable error code
+          example: INVALID_CODE
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-zA-Z_0-9-]*$"
+          type: string
+        message:
+          description: Brief summary of the reported issue
+          example: invalid_message
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        level:
+          description: "Level of the reported issue.\n\nThe possible values are: \n\
+            - info\n- warning\n- error\n"
+          example: ERROR
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-zA-Z_0-9-]*$"
+          type: string
+        description:
+          description: Detailed description of the reported issue
+          example: Error validating schema
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+      required:
+      - code
+      - description
+      - level
+      - message
+      title: Error
+      type: object
+    ResponseErrors:
+      additionalProperties: false
+      description: Data structure containing the details for errors
+      properties:
+        errors:
+          description: Array of errors
+          items:
+            $ref: '#/components/schemas/Error'
+          maxItems: 50
+          minItems: 0
+          type: array
+      required:
+      - errors
+      title: ResponseErrors
+      type: object
+    TypeUuid:
+      description: UUID identification type
+      example: 2507b89c-b680-46df-9505-e0b6f78cf295
+      maxLength: 36
+      minLength: 36
+      pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+      title: TypeUuid
+      type: string
+    Country:
+      description: Acronyms that identify a country.
+      example: GB
+      maxLength: 2
+      minLength: 2
+      pattern: "^[A-Z]*$"
+      title: Country
+      type: string
+    AccountIdentifiersList:
+      description: Account identifiers list
+      items:
+        $ref: '#/components/schemas/AccountIdentifiersList_inner'
+      maxItems: 256
+      minItems: 0
+      type: array
+    AccountIdType:
+      description: "Format used for the account number in the \"accountId\" property.\n\
+        \nThe possible values are:\n- iban = IBAN code\n- bban = Basic Bank Account\
+        \ Number (BBAN) that represents a country-specific bank account number. Each\
+        \ country has its own standards for the format and length of the BBAN. The\
+        \ value is at most 31 char or 35 bytes long.\n- uuid = Unique account identifier.\
+        \ It is an internal code to uniquely identify the account. Some accounts are\
+        \ internal so they have UUID but no IBAN/BBAN.\n\nFor example: \n- In UK,\
+        \ the BBAN format is: Bank(4) + Sort code(6) + Account(8)\n- In Spain, it\
+        \ is: Banco(4) + Sucursal(4) + CD(2) + CTA(10)\n"
+      enum:
+      - iban
+      - bban
+      - uuid
+      example: iban
+      title: AccountIdType
+      type: string
+    BaseDateTime:
+      description: "Balance last update date time. \nThe value uses the complete data\
+        \ format defined as isoDateTime (TimeStamp): \"YYYY-MM-DD-HH:MM:SS.MS\" \n\
+        Where: \n- YYYY: 4-digit year \n- MM: 2-digit month (for example, 01 = January)\
+        \ \n- DD: 2-digit day of the month (01 through 31) HH = hour, MM=minutes,\
+        \ SS=seconds, MS=milliseconds.\n"
+      example: 2017-07-21T17:32:28Z
+      format: date-time
+      title: BaseDateTime
+      type: string
+    BaseCurrency:
+      description: The currency code associated to the account. Follows ISO-4217.
+      example: GBP
+      maxLength: 3
+      minLength: 3
+      pattern: "^[A-Z]*$"
+      title: BaseCurrency
+      type: string
+    AccountDisplayNumber:
+      description: Account number to be displayed
+      example: '*0022'
+      maxLength: 255
+      minLength: 3
+      pattern: "^[a-zA-Z_0-9*-]*$"
+      title: AccountDisplayNumber
+      type: string
+    AccountNickName:
+      description: |
+        NickName account Name (alias) the customer has assigned to the account for easy identification. Applies only when the operation is used by a physical or business customer, not when used by Santander staff.
+      example: My eMoney Account
+      maxLength: 255
+      minLength: 3
+      nullable: true
+      pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+      type: string
+    BalanceAmount:
+      additionalProperties: false
+      description: "Amount. \nThe value uses the data format defined in ISO 20022\
+        \ and has a maximum of 18 digits, of which 5 can be decimals, separated by\
+        \ a point.\n"
+      properties:
+        amount:
+          description: "Data in ISO 20022 format containing up to 18 digits from which\
+            \ 5 may be decimals. \nSeparation is a point\n"
+          example: 99.99
+          format: double
+          maximum: 2147483647
+          minimum: 0
+          type: number
+        currency:
+          description: The currency code associated to the account. Follows ISO-4217.
+          example: GBP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]*$"
+          title: BaseCurrency
+          type: string
+      type: object
+    BaseBalance:
+      additionalProperties: false
+      description: Base Balance and date of last change
+      nullable: true
+      properties:
+        amount:
+          $ref: '#/components/schemas/BalanceAmount'
+        lastChangeDateTime:
+          description: "Balance last update date time. \nThe value uses the complete\
+            \ data format defined as isoDateTime (TimeStamp): \"YYYY-MM-DD-HH:MM:SS.MS\"\
+            \ \nWhere: \n- YYYY: 4-digit year \n- MM: 2-digit month (for example,\
+            \ 01 = January) \n- DD: 2-digit day of the month (01 through 31) HH =\
+            \ hour, MM=minutes, SS=seconds, MS=milliseconds.\n"
+          example: 2017-07-21T17:32:28Z
+          format: date-time
+          title: BaseDateTime
+          type: string
+      title: BaseBalance
+      type: object
+    Balances:
+      additionalProperties: true
+      description: Data structure containing information related to different balances.
+      properties:
+        current:
+          $ref: '#/components/schemas/BaseBalance'
+        consolidated:
+          $ref: '#/components/schemas/BaseBalance'
+        pendingConsolidation:
+          $ref: '#/components/schemas/BaseBalance'
+        withholding:
+          $ref: '#/components/schemas/BaseBalance'
+        overdraft:
+          $ref: '#/components/schemas/BaseBalance'
+        limit:
+          $ref: '#/components/schemas/BaseBalance'
+        available:
+          $ref: '#/components/schemas/BaseBalance'
+      title: BalancesWithValue
+      type: object
+    BalancesWithRealAccountAvailable:
+      allOf:
+      - $ref: '#/components/schemas/Balances'
+      - $ref: '#/components/schemas/BalancesWithRealAccountAvailable_allOf'
+      description: Data structure containing information related to different balances.
+      title: BalancesWithRealAccountAvailable
+    LegalEntity:
+      additionalProperties: false
+      description: Legal Entity details
+      example:
+        legalEntityId: pagonxt_uk
+        legalEntityName: PagoNxt OneTrade UK Ltd
+        bic: PNXTGB2LXXX
+      properties:
+        bic:
+          description: Bic of the LegalEntity
+          example: PNXTGB2LXXX
+          maxLength: 255
+          minLength: 3
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        legalEntityId:
+          description: Unique Identifier of the legal entity associated with the account
+          example: pagonxt_uk
+          maxLength: 255
+          minLength: 3
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        legalEntityName:
+          description: Legal Name of the legal entity associated with the account
+          example: PagoNxt OneTrade UK Ltd
+          maxLength: 255
+          minLength: 3
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+      title: LegalEntity
+      type: object
+    Accounting:
+      additionalProperties: false
+      description: Reference to the wanted account
+      example:
+        accountingName: Client Account
+        accountingId: client_account
+      properties:
+        accountingId:
+          description: Accounting Identification of the customer account.
+          example: client_account
+          maxLength: 50
+          minLength: 0
+          pattern: "^[a-z_]*$"
+          type: string
+        accountingName:
+          description: Accounting Name of the customer account.
+          example: Client Account
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+      type: object
+    CustomerId:
+      description: "Customer ID of the customer whose accounts are to be included\
+        \ in the response. \nApplies only when Santander staff  wants to access data\
+        \ on the customer's behalf.\n"
+      example: PNXTGB2LXXXUS1234567890
+      maxLength: 255
+      minLength: 8
+      pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+      title: CustomerId
+      type: string
+    CustomerName:
+      description: Customer Name associated with the account
+      example: Customer Company Name
+      maxLength: 255
+      minLength: 0
+      pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+      title: CustomerName
+      type: string
+    Account:
+      additionalProperties: false
+      description: Data structure containing account details
+      example:
+        lastUpdateDateTime: 2017-07-21T17:32:28Z
+        displayNumber: '*0022'
+        productId: 2507b89c-b680-46df-9505-e0b6f78cf295
+        nickName: My eMoney Account
+        accountIdentifiersList:
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        accounting:
+          accountingName: Client Account
+          accountingId: client_account
+        baseCurrency: GBP
+        productName: eMoney Account
+        legalEntity:
+          legalEntityId: pagonxt_uk
+          legalEntityName: PagoNxt OneTrade UK Ltd
+          bic: PNXTGB2LXXX
+        balances: null
+        closingDateTime: 2017-07-21T17:32:28Z
+        additionalInfo: {}
+        realAccountIdentifierList:
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        - accountId: GB40PNXT09991100000022
+          country: GB
+          accountIdType: iban
+        virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+        limits:
+        - limitCurrency: GBP
+          limitAmount: "100"
+          limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+          limitType: balance_limit
+        - limitCurrency: GBP
+          limitAmount: "100"
+          limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+          limitType: balance_limit
+        - limitCurrency: GBP
+          limitAmount: "100"
+          limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+          limitType: balance_limit
+        - limitCurrency: GBP
+          limitAmount: "100"
+          limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+          limitType: balance_limit
+        - limitCurrency: GBP
+          limitAmount: "100"
+          limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+          limitType: balance_limit
+        status: Open
+        customer:
+          customerId: PNXTGB2LXXXUS1234567890
+          segmentCode: sme
+          customerName: Customer Company Name
+        openingDateTime: 2017-07-21T17:32:28Z
+      properties:
+        displayNumber:
+          description: Account number to be displayed
+          example: '*0022'
+          maxLength: 255
+          minLength: 3
+          pattern: "^[a-zA-Z_0-9*-]*$"
+          title: AccountDisplayNumber
+          type: string
+        nickName:
+          description: |
+            NickName account Name (alias) the customer has assigned to the account for easy identification. Applies only when the operation is used by a physical or business customer, not when used by Santander staff.
+          example: My eMoney Account
+          maxLength: 255
+          minLength: 3
+          nullable: true
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        baseCurrency:
+          description: The currency code associated to the account. Follows ISO-4217.
+          example: GBP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]*$"
+          title: BaseCurrency
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+        accountIdentifiersList:
+          description: Account identifiers list
+          items:
+            $ref: '#/components/schemas/AccountIdentifiersList_inner'
+          maxItems: 256
+          minItems: 0
+          type: array
+        customer:
+          $ref: '#/components/schemas/CustomerAssociated'
+        productId:
+          description: UUID identification type
+          example: 2507b89c-b680-46df-9505-e0b6f78cf295
+          maxLength: 36
+          minLength: 36
+          pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+          title: TypeUuid
+          type: string
+        virtualAccountStructureId:
+          description: UUID identification type
+          example: 2507b89c-b680-46df-9505-e0b6f78cf295
+          maxLength: 36
+          minLength: 36
+          pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+          title: TypeUuid
+          type: string
+        productName:
+          description: Name of the product associated with the account
+          example: eMoney Account
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        accounting:
+          $ref: '#/components/schemas/Accounting'
+        legalEntity:
+          $ref: '#/components/schemas/LegalEntity'
+        balances:
+          $ref: '#/components/schemas/BalancesWithRealAccountAvailable'
+        realAccountIdentifierList:
+          description: Account identifiers list
+          items:
+            $ref: '#/components/schemas/AccountIdentifiersList_inner'
+          maxItems: 256
+          minItems: 0
+          type: array
+        openingDateTime:
+          description: "Balance last update date time. \nThe value uses the complete\
+            \ data format defined as isoDateTime (TimeStamp): \"YYYY-MM-DD-HH:MM:SS.MS\"\
+            \ \nWhere: \n- YYYY: 4-digit year \n- MM: 2-digit month (for example,\
+            \ 01 = January) \n- DD: 2-digit day of the month (01 through 31) HH =\
+            \ hour, MM=minutes, SS=seconds, MS=milliseconds.\n"
+          example: 2017-07-21T17:32:28Z
+          format: date-time
+          title: BaseDateTime
+          type: string
+        lastUpdateDateTime:
+          description: "Last update date of the Account. \nThe value uses the complete\
+            \ data format defined as isoDateTime (TimeStamp): \"YYYY-MM-DD-HH:MM:SS.MS\"\
+            \ \nWhere: \n- YYYY: 4-digit year \n- MM: 2-digit month (for example,\
+            \ 01 = January) \n- DD: 2-digit day of the month (01 through 31) HH =\
+            \ hour, MM=minutes, SS=seconds, MS=milliseconds.\n"
+          example: 2017-07-21T17:32:28Z
+          format: date-time
+          nullable: true
+          type: string
+        closingDateTime:
+          description: "Date when the Account was closed. \nThe value uses the complete\
+            \ data format defined as isoDateTime (TimeStamp): \"YYYY-MM-DD-HH:MM:SS.MS\"\
+            \ \nWhere: \n- YYYY: 4-digit year \n- MM: 2-digit month (for example,\
+            \ 01 = January) \n- DD: 2-digit day of the month (01 through 31) HH =\
+            \ hour, MM=minutes, SS=seconds, MS=milliseconds.\n"
+          example: 2017-07-21T17:32:28Z
+          format: date-time
+          nullable: true
+          type: string
+        additionalInfo:
+          additionalProperties: false
+          description: Free JSON object.
+          example: {}
+          title: AdditionalInfo
+          type: object
+        limits:
+          description: Show all limits
+          items:
+            $ref: '#/components/schemas/LimitResponse'
+          maxItems: 200
+          minItems: 0
+          type: array
+      type: object
+    CustomerAssociated:
+      additionalProperties: false
+      description: Customer associated with an account.
+      example:
+        customerId: PNXTGB2LXXXUS1234567890
+        segmentCode: sme
+        customerName: Customer Company Name
+      properties:
+        customerId:
+          description: "Customer ID of the customer whose accounts are to be included\
+            \ in the response. \nApplies only when Santander staff  wants to access\
+            \ data on the customer's behalf.\n"
+          example: PNXTGB2LXXXUS1234567890
+          maxLength: 255
+          minLength: 8
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          title: CustomerId
+          type: string
+        segmentCode:
+          $ref: '#/components/schemas/SegmentCode'
+        customerName:
+          description: Customer Name associated with the account
+          example: Customer Company Name
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          title: CustomerName
+          type: string
+      title: CustomerAssociated
+      type: object
+    Links:
+      additionalProperties: false
+      description: Pagination Links
+      example:
+        _last: /accounts?_offset=10&_limit=10
+        _first: /accounts?_offset=0&_limit=10
+        _next: /accounts?_offset=40&_limit=10
+        _prev: /accounts?_offset=30&_limit=10
+      properties:
+        _first:
+          description: |
+            Link to the first page of the account list.
+            The exact value depends on the data to be accessed.
+            The exact content of the page depends on the input parameters provided in the request, such as the offset.
+          example: /accounts?_offset=0&_limit=10
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        _last:
+          description: |
+            Link to the previous page of the account list.
+            The exact value depends on the data to be accessed.
+            The exact content of the page depends on the input parameters provided in the request, such as the offset.
+          example: /accounts?_offset=10&_limit=10
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        _prev:
+          description: |
+            Link to the previous page of the account list.
+            The exact value depends on the data to be accessed.
+            The exact content of the page depends on the input parameters provided in the request, such as the offset.
+          example: /accounts?_offset=30&_limit=10
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+        _next:
+          description: |
+            Link to the last page of the account list.
+            The exact value depends on the data to be accessed.
+            The exact content of the page depends on the input parameters provided in the request, such as the offset.
+          example: /accounts?_offset=40&_limit=10
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ '\"\"]*$"
+          type: string
+      title: Links
+      type: object
+    Status:
+      description: |
+        Account status.
+
+        The possible values are:
+        - Open = Account is open and movements are restricted only by the customer\'s available balance and account contract attributes. This includes accounts with warnings.
+        - Blocked by customer= The account is open but is blocked for credit, blocked for debit, or both, ONLY if this block was set by customer itself. In case it is blocked by other distinct to customer, the status will be Blocked.
+        - Blocked = Account has some restrictive block.
+        - Closed = Account is closed.
+      enum:
+      - Open
+      - Closed
+      - Blocked by customer
+      - Blocked
+      - Blocked-DR
+      - Blocked-CR
+      - Blocked-DR&CR
+      example: Open
+      title: Status
+      type: string
+    LimitResponse:
+      additionalProperties: false
+      description: Show all limits
+      example:
+        limitCurrency: GBP
+        limitAmount: "100"
+        limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+        limitType: balance_limit
+      properties:
+        limitId:
+          description: UUID identification type
+          example: 2507b89c-b680-46df-9505-e0b6f78cf295
+          maxLength: 36
+          minLength: 36
+          pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+          title: TypeUuid
+          type: string
+        limitCurrency:
+          description: The currency code associated to the account. Follows ISO-4217.
+          example: GBP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]*$"
+          title: BaseCurrency
+          type: string
+        limitAmount:
+          description: Limit amount
+          example: "100"
+          maxLength: 10
+          minLength: 1
+          pattern: "^[0-9]*$"
+          type: string
+        limitType:
+          description: indicates the type of limit
+          enum:
+          - overdraft
+          - intra_day_limit
+          - pencil_limit
+          - balance_limit
+          example: balance_limit
+          type: string
+      required:
+      - limitAmount
+      - limitCurrency
+      - limitId
+      - limitType
+      title: LimitResponse
+      type: object
+    SegmentCode:
+      description: |
+        Segment code (classification) in which the bank has categorized the customer
+        Possible example values (sme, corp, mnc, bank, emi, api, regulated_corp, lc, fi, nbfi).
+      enum:
+      - sme
+      - corp
+      - mnc
+      - bank
+      - emi
+      - api
+      - regulated_corp
+      - lc
+      - fi
+      - nbfi
+      example: sme
+      title: SegmentCode
+      type: string
+    AccountVerifications:
+      additionalProperties: false
+      description: Verifications data of the account
+      example:
+        accounting:
+          accountingName: Client Account
+          accountingId: client_account
+        baseCurrency: GBP
+        virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+        status: Open
+        customer:
+          customerId: PNXTGB2LXXXUS1234567890
+          segmentCode: sme
+          customerName: Customer Company Name
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        baseCurrency:
+          description: The currency code associated to the account. Follows ISO-4217.
+          example: GBP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]*$"
+          title: BaseCurrency
+          type: string
+        customer:
+          $ref: '#/components/schemas/CustomerAssociated'
+        accounting:
+          $ref: '#/components/schemas/Accounting'
+        virtualAccountStructureId:
+          description: UUID identification type
+          example: 2507b89c-b680-46df-9505-e0b6f78cf295
+          maxLength: 36
+          minLength: 36
+          pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+          title: TypeUuid
+          type: string
+      type: object
+    AdditionalInfo:
+      additionalProperties: false
+      description: Free JSON object.
+      example: {}
+      title: AdditionalInfo
+      type: object
+    TransactionsListLink:
+      description: Link to the account transactions list.
+      example: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+      maxLength: 255
+      minLength: 0
+      pattern: "^[a-zA-Z_0-9_@./#&+-_ ''\"\"]*$"
+      title: TransactionsListLink
+      type: string
+    Count:
+      description: Define the count pagination component
+      example: 1
+      format: int64
+      title: Count
+      type: integer
+    AccountDetailsLink:
+      description: Link to the account details.
+      example: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549?account_id_type=uuid
+      maxLength: 255
+      minLength: 0
+      pattern: "^[a-zA-Z_0-9_@./#&+-_ ''\"\"]*$"
+      title: AccountDetailsLink
+      type: string
+    AccountDetailsResponse:
+      additionalProperties: false
+      description: Get all account detials
+      example:
+        accountDetailsLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549?account_id_type=uuid
+        accountDetails:
+          lastUpdateDateTime: 2017-07-21T17:32:28Z
+          displayNumber: '*0022'
+          productId: 2507b89c-b680-46df-9505-e0b6f78cf295
+          nickName: My eMoney Account
+          accountIdentifiersList:
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          accounting:
+            accountingName: Client Account
+            accountingId: client_account
+          baseCurrency: GBP
+          productName: eMoney Account
+          legalEntity:
+            legalEntityId: pagonxt_uk
+            legalEntityName: PagoNxt OneTrade UK Ltd
+            bic: PNXTGB2LXXX
+          balances: null
+          closingDateTime: 2017-07-21T17:32:28Z
+          additionalInfo: {}
+          realAccountIdentifierList:
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          - accountId: GB40PNXT09991100000022
+            country: GB
+            accountIdType: iban
+          virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+          limits:
+          - limitCurrency: GBP
+            limitAmount: "100"
+            limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limitType: balance_limit
+          - limitCurrency: GBP
+            limitAmount: "100"
+            limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limitType: balance_limit
+          - limitCurrency: GBP
+            limitAmount: "100"
+            limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limitType: balance_limit
+          - limitCurrency: GBP
+            limitAmount: "100"
+            limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limitType: balance_limit
+          - limitCurrency: GBP
+            limitAmount: "100"
+            limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limitType: balance_limit
+          status: Open
+          customer:
+            customerId: PNXTGB2LXXXUS1234567890
+            segmentCode: sme
+            customerName: Customer Company Name
+          openingDateTime: 2017-07-21T17:32:28Z
+        transactionsListLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+      properties:
+        accountDetails:
+          $ref: '#/components/schemas/Account'
+        transactionsListLink:
+          description: Link to the account transactions list.
+          example: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ ''\"\"]*$"
+          title: TransactionsListLink
+          type: string
+        accountDetailsLink:
+          description: Link to the account details.
+          example: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549?account_id_type=uuid
+          maxLength: 255
+          minLength: 0
+          pattern: "^[a-zA-Z_0-9_@./#&+-_ ''\"\"]*$"
+          title: AccountDetailsLink
+          type: string
+      required:
+      - accountDetails
+      - transactionsListLink
+      title: AccountLinks
+      type: object
+    AccountListResponse:
+      additionalProperties: false
+      description: Get all accounts list.
+      example:
+        accountsList:
+        - accountDetailsLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549?account_id_type=uuid
+          accountDetails:
+            lastUpdateDateTime: 2017-07-21T17:32:28Z
+            displayNumber: '*0022'
+            productId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            nickName: My eMoney Account
+            accountIdentifiersList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            accounting:
+              accountingName: Client Account
+              accountingId: client_account
+            baseCurrency: GBP
+            productName: eMoney Account
+            legalEntity:
+              legalEntityId: pagonxt_uk
+              legalEntityName: PagoNxt OneTrade UK Ltd
+              bic: PNXTGB2LXXX
+            balances: null
+            closingDateTime: 2017-07-21T17:32:28Z
+            additionalInfo: {}
+            realAccountIdentifierList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limits:
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            status: Open
+            customer:
+              customerId: PNXTGB2LXXXUS1234567890
+              segmentCode: sme
+              customerName: Customer Company Name
+            openingDateTime: 2017-07-21T17:32:28Z
+          transactionsListLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+        - accountDetailsLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549?account_id_type=uuid
+          accountDetails:
+            lastUpdateDateTime: 2017-07-21T17:32:28Z
+            displayNumber: '*0022'
+            productId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            nickName: My eMoney Account
+            accountIdentifiersList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            accounting:
+              accountingName: Client Account
+              accountingId: client_account
+            baseCurrency: GBP
+            productName: eMoney Account
+            legalEntity:
+              legalEntityId: pagonxt_uk
+              legalEntityName: PagoNxt OneTrade UK Ltd
+              bic: PNXTGB2LXXX
+            balances: null
+            closingDateTime: 2017-07-21T17:32:28Z
+            additionalInfo: {}
+            realAccountIdentifierList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limits:
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            status: Open
+            customer:
+              customerId: PNXTGB2LXXXUS1234567890
+              segmentCode: sme
+              customerName: Customer Company Name
+            openingDateTime: 2017-07-21T17:32:28Z
+          transactionsListLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+        - accountDetailsLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549?account_id_type=uuid
+          accountDetails:
+            lastUpdateDateTime: 2017-07-21T17:32:28Z
+            displayNumber: '*0022'
+            productId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            nickName: My eMoney Account
+            accountIdentifiersList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            accounting:
+              accountingName: Client Account
+              accountingId: client_account
+            baseCurrency: GBP
+            productName: eMoney Account
+            legalEntity:
+              legalEntityId: pagonxt_uk
+              legalEntityName: PagoNxt OneTrade UK Ltd
+              bic: PNXTGB2LXXX
+            balances: null
+            closingDateTime: 2017-07-21T17:32:28Z
+            additionalInfo: {}
+            realAccountIdentifierList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limits:
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            status: Open
+            customer:
+              customerId: PNXTGB2LXXXUS1234567890
+              segmentCode: sme
+              customerName: Customer Company Name
+            openingDateTime: 2017-07-21T17:32:28Z
+          transactionsListLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+        - accountDetailsLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549?account_id_type=uuid
+          accountDetails:
+            lastUpdateDateTime: 2017-07-21T17:32:28Z
+            displayNumber: '*0022'
+            productId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            nickName: My eMoney Account
+            accountIdentifiersList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            accounting:
+              accountingName: Client Account
+              accountingId: client_account
+            baseCurrency: GBP
+            productName: eMoney Account
+            legalEntity:
+              legalEntityId: pagonxt_uk
+              legalEntityName: PagoNxt OneTrade UK Ltd
+              bic: PNXTGB2LXXX
+            balances: null
+            closingDateTime: 2017-07-21T17:32:28Z
+            additionalInfo: {}
+            realAccountIdentifierList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limits:
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            status: Open
+            customer:
+              customerId: PNXTGB2LXXXUS1234567890
+              segmentCode: sme
+              customerName: Customer Company Name
+            openingDateTime: 2017-07-21T17:32:28Z
+          transactionsListLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+        - accountDetailsLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549?account_id_type=uuid
+          accountDetails:
+            lastUpdateDateTime: 2017-07-21T17:32:28Z
+            displayNumber: '*0022'
+            productId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            nickName: My eMoney Account
+            accountIdentifiersList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            accounting:
+              accountingName: Client Account
+              accountingId: client_account
+            baseCurrency: GBP
+            productName: eMoney Account
+            legalEntity:
+              legalEntityId: pagonxt_uk
+              legalEntityName: PagoNxt OneTrade UK Ltd
+              bic: PNXTGB2LXXX
+            balances: null
+            closingDateTime: 2017-07-21T17:32:28Z
+            additionalInfo: {}
+            realAccountIdentifierList:
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            - accountId: GB40PNXT09991100000022
+              country: GB
+              accountIdType: iban
+            virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+            limits:
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            - limitCurrency: GBP
+              limitAmount: "100"
+              limitId: 2507b89c-b680-46df-9505-e0b6f78cf295
+              limitType: balance_limit
+            status: Open
+            customer:
+              customerId: PNXTGB2LXXXUS1234567890
+              segmentCode: sme
+              customerName: Customer Company Name
+            openingDateTime: 2017-07-21T17:32:28Z
+          transactionsListLink: /accounts/e0c38c29-cdc1-4c61-9c14-a877b72cf549/transactions?account_id_type=uuid
+        _count: 1
+        _links:
+          _last: /accounts?_offset=10&_limit=10
+          _first: /accounts?_offset=0&_limit=10
+          _next: /accounts?_offset=40&_limit=10
+          _prev: /accounts?_offset=30&_limit=10
+      properties:
+        accountsList:
+          description: Array of customer's accounts
+          items:
+            $ref: '#/components/schemas/AccountDetailsResponse'
+          maxItems: 200
+          minItems: 0
+          type: array
+        _links:
+          $ref: '#/components/schemas/Links'
+        _count:
+          description: Define the count pagination component
+          example: 1
+          format: int64
+          title: Count
+          type: integer
+      title: AccountListResponse
+      type: object
+    AccountVerificationsResponse:
+      additionalProperties: false
+      description: Account Verifications
+      example:
+        accountVerifications:
+          accounting:
+            accountingName: Client Account
+            accountingId: client_account
+          baseCurrency: GBP
+          virtualAccountStructureId: 2507b89c-b680-46df-9505-e0b6f78cf295
+          status: Open
+          customer:
+            customerId: PNXTGB2LXXXUS1234567890
+            segmentCode: sme
+            customerName: Customer Company Name
+      properties:
+        accountVerifications:
+          $ref: '#/components/schemas/AccountVerifications'
+      title: AccountVerificationsResponse
+      type: object
+    AccountIdentifiersList_inner:
+      additionalProperties: false
+      description: "AccountId, type and country"
+      example:
+        accountId: GB40PNXT09991100000022
+        country: GB
+        accountIdType: iban
+      properties:
+        accountIdType:
+          $ref: '#/components/schemas/AccountIdType'
+        accountId:
+          description: Account number shown using the account number format defined
+            in the "accountIdType" property
+          example: GB40PNXT09991100000022
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-zA-Z0-9*-]*$"
+          type: string
+        country:
+          description: Acronyms that identify a country.
+          example: GB
+          maxLength: 2
+          minLength: 2
+          pattern: "^[A-Z]*$"
+          title: Country
+          type: string
+      type: object
+    BalancesWithRealAccountAvailable_allOf:
+      description: Data structure containing real account available.
+      properties:
+        realAccountAvailable:
+          $ref: '#/components/schemas/BaseBalance'
+      type: object
+      example: null
+  securitySchemes:
+    JWTProfile:
+      description: "OAuth Grant type, JWT Profile"
+      flows:
+        implicit:
+          authorizationUrl: http://$(authorization-url)
+          scopes:
+            accounts.read: Accessing accounts
+      type: oauth2
+    bearerJWTAuth:
+      bearerFormat: JWT
+      description: JWT Bearer Token for Authorization
+      scheme: bearer
+      type: http
+

@@ -1,0 +1,4 @@
+gpp:
+  external-client:
+    accounts-validation:
+      url: http://localhost:8080
