@@ -1,1 +1,1 @@
-# getnet Oscar is the best
+# getnet Oscar is the worst
