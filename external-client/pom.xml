@@ -19,7 +19,7 @@
         <reactor-test.version>3.5.1</reactor-test.version>
     </properties>
     <modelVersion>4.0.0</modelVersion>
-    <name>openapi-parent</name>
+    <name>getnet-lib-openapi-parent</name>
     <groupId>com.santander.getnet.lib</groupId>
     <artifactId>getnet-lib-openapi-parent</artifactId>
     <version>1.0.0</version>
