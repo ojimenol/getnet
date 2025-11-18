@@ -1,84 +1,160 @@
 package com.santander.getnet.jwt.handler;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwe;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Encoders;
-import io.jsonwebtoken.security.Keys;
-import jakarta.xml.bind.DatatypeConverter;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.RSADecrypter;
+import com.nimbusds.jose.crypto.RSAEncrypter;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.EncryptedJWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.Key;
+import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
+import java.text.ParseException;
+import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public class JwtIO {
-
-    private static final String SECRET_KEY =
-        "oeRaYY7Wo24sDqKSX3IM9ASGmdGPmkTd9jo1QTy4b7P9Ze5_9hKolVX8xNrQDcNRfVEdTZNOuOyqEGhXEbdJI-ZQ19k_o9MI0y3eZN2lp9jow55FfXMiINEdt1XR85VipRLSOkT6kSpzs2x-jbLDiz9iFVzkd81YKxMgPA7VfZeQUm4n-mOmnWMaVX30zGFU4L3oPBctYKkl4dYfqYWqRNfrgPJVi5DGFjywgxx0ASEiJHtV72paI3fDR2XwlSkyhhmY-ICjCRmsJN4fX1pdoL8a18-aQrvyu4j0Os6dVPYIoPvvY0SAZtWYKHfM15g7A3HD4cVREf9cUsprCRK93w";
 
     public static void main(String[] args) {
         var jwtHandler = new JwtIO();
 
-        var keyString = jwtHandler.generateHmacShaKey();
+        var jwt = jwtHandler.createJWTAndEncrypt();
+        System.out.println("Jwe: " + jwt);
 
-        var jwt = jwtHandler.createJWT(keyString,"1", "me", "subject", 300000L);
-        System.out.println("Jwt: " + jwt);
+        var jwt2 = jwtHandler.createJWTAndSign();
+        System.out.println("Jws: " + jwt2);
     }
 
-    public String generateHmacShaKey() {
-        //Generating a safe HS256 Secret key
-        SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
-        String secretString = Encoders.BASE64.encode(key.getEncoded());
-        System.out.println("Secret key: " + secretString);
-        return secretString;
+    public String createJWTAndSign() {
+        String out = null;
+        KeyPairGenerator keyPairGenerator;
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+
+            keyPairGenerator.initialize(2048);
+
+            // generate the key pair
+            KeyPair keyPair = keyPairGenerator.genKeyPair();
+
+            // create KeyFactory and RSA Keys Specs
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPublicKeySpec publicKeySpec = keyFactory.getKeySpec(keyPair.getPublic(), RSAPublicKeySpec.class);
+            RSAPrivateKeySpec privateKeySpec = keyFactory.getKeySpec(keyPair.getPrivate(), RSAPrivateKeySpec.class);
+
+            // generate (and retrieve) RSA Keys from the KeyFactory using Keys Specs
+            RSAPublicKey publicRsaKey = (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+            RSAPrivateKey privateRsaKey  = (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
+
+            var header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                .type(JOSEObjectType.JWT)
+                .keyID(UUID.randomUUID().toString())
+                .build();
+
+            var payload = buildClaimSet();
+
+            var signedJWT = new SignedJWT(header, payload);
+            signedJWT.sign(new RSASSASigner(privateRsaKey));
+
+            out = signedJWT.serialize();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException| JOSEException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return out;
     }
 
     //Sample method to construct a JWT
-    public String createJWT(String secret, String id, String issuer, String subject, long ttlMillis) {
+    public String createJWTAndEncrypt() {
 
-        //The JWT signature algorithm we will be using to sign the token
-        var signatureAlgorithm = Jwts.SIG.HS256;
+        String out = null;
+        KeyPairGenerator keyPairGenerator;
 
-        long nowMillis = System.currentTimeMillis();
-        Date now = new Date(nowMillis);
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA");
 
-        //We will sign our JWT with our ApiKey secret
-        byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secret);
-        Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getId());
+            keyPairGenerator.initialize(2048);
 
-        //Let's set the JWT Claims
-        JwtBuilder builder = Jwts.builder()
-            .setId(id)
-            .setIssuedAt(now)
-            .setSubject(subject)
-            .setIssuer(issuer)
-            .signWith(signingKey);
+            // generate the key pair
+            KeyPair keyPair = keyPairGenerator.genKeyPair();
 
-        //if it has been specified, let's add the expiration
-        if (ttlMillis >= 0) {
-            long expMillis = nowMillis + ttlMillis;
-            Date exp = new Date(expMillis);
-            builder.setExpiration(exp);
+            // create KeyFactory and RSA Keys Specs
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPublicKeySpec publicKeySpec = keyFactory.getKeySpec(keyPair.getPublic(), RSAPublicKeySpec.class);
+            RSAPrivateKeySpec privateKeySpec = keyFactory.getKeySpec(keyPair.getPrivate(), RSAPrivateKeySpec.class);
+
+            // generate (and retrieve) RSA Keys from the KeyFactory using Keys Specs
+            RSAPublicKey publicRsaKey = (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+            RSAPrivateKey privateRsaKey  = (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
+
+            JWTClaimsSet claimsSet = buildClaimSet();
+
+            System.out.println("--------------------------");
+            System.out.println("Claim Set : \n"+claimsSet);
+
+            // create the JWT header and specify:
+            //  RSA-OAEP as the encryption algorithm
+            //  128-bit AES/GCM as the encryption method
+            JWEHeader header = new JWEHeader(JWEAlgorithm.RSA_OAEP_512, EncryptionMethod.A256GCM);
+
+            // create the EncryptedJWT object
+            EncryptedJWT jwt = new EncryptedJWT(header, claimsSet);
+
+            // create an RSA encrypter with the specified public RSA key
+            RSAEncrypter encrypter = new RSAEncrypter(publicRsaKey);
+
+            // do the actual encryption
+            jwt.encrypt(encrypter);
+
+            // serialize to JWT compact form
+            String jwtString = jwt.serialize();
+            System.out.println("\nJwt Compact Form : "+jwtString);
+
+            // in order to read back the data from the token using your private RSA key:
+            // parse the JWT text string using EncryptedJWT object
+            jwt = EncryptedJWT.parse(jwtString);
+
+            // create a decrypter with the specified private RSA key
+            RSADecrypter decrypter = new RSADecrypter(privateRsaKey);
+
+            // do the decryption
+            jwt.decrypt(decrypter);
+
+            // print out the claims
+
+            System.out.println("===========================================================");
+            System.out.println("Issuer: [ " + jwt.getJWTClaimsSet().getIssuer() + "]");
+            System.out.println("Subject: [" + jwt.getJWTClaimsSet().getSubject()+ "]");
+            System.out.println("Audience size: [" + jwt.getJWTClaimsSet().getAudience().size()+ "]");
+            System.out.println("Expiration Time: [" + jwt.getJWTClaimsSet().getExpirationTime()+ "]");
+            System.out.println("Not Before Time: [" + jwt.getJWTClaimsSet().getNotBeforeTime()+ "]");
+            System.out.println("Issue At: [" + jwt.getJWTClaimsSet().getIssueTime()+ "]");
+            System.out.println("JWT ID: [" + jwt.getJWTClaimsSet().getJWTID()+ "]");
+            System.out.println("===========================================================");
+
+            out = jwt.getParsedString();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | JOSEException | ParseException e) {
+            System.out.println(e.getMessage());
         }
 
-        //Builds the JWT and serializes it to a compact, URL-safe string
-        return builder.compact();
+        return out;
     }
 
-    public Jwe<Claims> decodeJWT(String jwt) {
+    private JWTClaimsSet buildClaimSet() {
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder();
+        claimsSet.issuer("https://my-auth-server.com");
+        claimsSet.subject("John Kerr");
+        claimsSet.audience(List.of("https://my-web-app.com", "https://your-web-app.com"));
+        claimsSet.expirationTime(Date.from(Instant.now().plusSeconds(120)));
+        claimsSet.notBeforeTime(new Date());
+        claimsSet.jwtID(UUID.randomUUID().toString());
 
-        var signatureAlgorithm = Jwts.SIG.HS256;
-        byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(SECRET_KEY);
-        SecretKey signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getId());
-
-        //This line will throw an exception if it is not a signed JWS (as expected)
-        var jwe = Jwts.parser()
-            .decryptWith(signingKey)
-            .build()
-            .parseEncryptedClaims(jwt);
-        return jwe;
+        return claimsSet.build();
     }
-
 }
