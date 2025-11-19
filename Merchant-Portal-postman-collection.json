@@ -1,0 +1,698 @@
+{
+	"info": {
+		"_postman_id": "5c9ad860-1c24-49a4-82df-0ebc6768f91b",
+		"name": "Merchant Portal",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "NUEK",
+			"item": [
+				{
+					"name": "PRE",
+					"item": [
+						{
+							"name": "0. Credenciales SAS PRE",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json();\r",
+											"pm.environment.set('token', response.tokenCorp);\r",
+											"pm.environment.set('tokenJWT', response.jwt);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"idAttributes\": {\r\n    \"uid\": \"aplcmce\"\r\n  },\r\n  \"password\": \"KCvtuy34#\",\r\n  \"realm\": \"SantanderBCE\"\r\n}"
+								},
+								"url": {
+									"raw": "https://srvnuarintra.santander.pru.bsch/sas/authenticate/credentials",
+									"protocol": "https",
+									"host": [
+										"srvnuarintra",
+										"santander",
+										"pru",
+										"bsch"
+									],
+									"path": [
+										"sas",
+										"authenticate",
+										"credentials"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "1. Generar token JWE Comercios",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json();\r",
+											"pm.environment.set('tokenJWE', response.jwe);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWT}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Clientid",
+										"value": "darwin",
+										"type": "default"
+									},
+									{
+										"key": "Authentication",
+										"value": "Bearer {{tokenJWT}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"keyalias\": \"admisionemp_pre\",\n    \"expiration\": \"60\",\n    \"payload\": {\n        \"personCode\": \"884407\",\n        \"personType\": \"F\",\n        \"billingDateFrom\": \"20250501\",\n        \"billingDateTo\": \"20251024\",\n        \"listDateFrom\": \"20251001\",\n        \"listDateTo\": \"20251031\",\n        \"order\": \"D\"\n    }\n}"
+								},
+								"url": {
+									"raw": "https://srvnuarintra.santander.pru.bsch/cos/jwe/scos/generate",
+									"protocol": "https",
+									"host": [
+										"srvnuarintra",
+										"santander",
+										"pru",
+										"bsch"
+									],
+									"path": [
+										"cos",
+										"jwe",
+										"scos",
+										"generate"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "1. Nuek - Comercios",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWE}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://repgtnprep.minsaitpaymentsprocessing.com/api/Comercios/commerces?&personCode=884407&personType=F&billingDateFrom=20250501&billingDateTo=20251024&order=D&listDateFrom=20251001&listDateTo=20251031",
+									"protocol": "https",
+									"host": [
+										"repgtnprep",
+										"minsaitpaymentsprocessing",
+										"com"
+									],
+									"path": [
+										"api",
+										"Comercios",
+										"commerces"
+									],
+									"query": [
+										{
+											"key": null,
+											"value": null
+										},
+										{
+											"key": "personCode",
+											"value": "884407"
+										},
+										{
+											"key": "personType",
+											"value": "F"
+										},
+										{
+											"key": "billingDateFrom",
+											"value": "20250501"
+										},
+										{
+											"key": "billingDateTo",
+											"value": "20251024"
+										},
+										{
+											"key": "order",
+											"value": "D"
+										},
+										{
+											"key": "listDateFrom",
+											"value": "20251001"
+										},
+										{
+											"key": "listDateTo",
+											"value": "20251031"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Generar token JWE grouped billing",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json();\r",
+											"pm.environment.set('tokenJWE', response.jwe);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWT}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Clientid",
+										"value": "darwin",
+										"type": "default"
+									},
+									{
+										"key": "Authentication",
+										"value": "Bearer {{tokenJWT}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"keyalias\": \"admisionemp_pre\",\n    \"expiration\": \"60\",\n    \"payload\": {\n        \"personCode\": \"884407\",\n        \"personType\": \"F\",\n        \"listDateFrom\": \"20251001\",\n        \"listDateTo\": \"20251031\"\n    }\n}"
+								},
+								"url": {
+									"raw": "https://srvnuarintra.santander.pru.bsch/cos/jwe/scos/generate",
+									"protocol": "https",
+									"host": [
+										"srvnuarintra",
+										"santander",
+										"pru",
+										"bsch"
+									],
+									"path": [
+										"cos",
+										"jwe",
+										"scos",
+										"generate"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Nuek - Grouped billing",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWE}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://repgtnprep.minsaitpaymentsprocessing.com/api/Comercios/groupedbilling?personCode=884407&personType=F&order=D&listDateFrom=20251001&listDateTo=20251031",
+									"protocol": "https",
+									"host": [
+										"repgtnprep",
+										"minsaitpaymentsprocessing",
+										"com"
+									],
+									"path": [
+										"api",
+										"Comercios",
+										"groupedbilling"
+									],
+									"query": [
+										{
+											"key": "personCode",
+											"value": "884407"
+										},
+										{
+											"key": "personType",
+											"value": "F"
+										},
+										{
+											"key": "order",
+											"value": "D"
+										},
+										{
+											"key": "listDateFrom",
+											"value": "20251001"
+										},
+										{
+											"key": "listDateTo",
+											"value": "20251031"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Generar token JWE TPV",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json();\r",
+											"pm.environment.set('tokenJWE', response.jwe);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWT}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Clientid",
+										"value": "darwin",
+										"type": "default"
+									},
+									{
+										"key": "Authentication",
+										"value": "Bearer {{tokenJWT}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"keyalias\": \"admisionemp_pre\",\n    \"expiration\": \"60\",\n    \"payload\": {\n        \"personCode\": \"884407\",\n        \"personType\": \"F\",\n        \"commerceCode\": \"0038833422\",\n        \"billingDateFrom\": \"20250501\",\n        \"billingDateTo\": \"20251024\",\n        \"listDateFrom\": \"20251001\",\n        \"listDateTo\": \"20251031\",\n        \"order\": \"D\"\n    }\n}"
+								},
+								"url": {
+									"raw": "https://srvnuarintra.santander.pru.bsch/cos/jwe/scos/generate",
+									"protocol": "https",
+									"host": [
+										"srvnuarintra",
+										"santander",
+										"pru",
+										"bsch"
+									],
+									"path": [
+										"cos",
+										"jwe",
+										"scos",
+										"generate"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Nuek - Comercios TPVs",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWE}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://repgtnprep.minsaitpaymentsprocessing.com/api/Comercio/tpvs?personType=F&personCode=884407&commerceCode=0038833422&billingDateFrom=20250501&billingDateTo=20251024&listDateFrom=20251001&listDateTo=20251031&order=D",
+									"protocol": "https",
+									"host": [
+										"repgtnprep",
+										"minsaitpaymentsprocessing",
+										"com"
+									],
+									"path": [
+										"api",
+										"Comercio",
+										"tpvs"
+									],
+									"query": [
+										{
+											"key": "personType",
+											"value": "F"
+										},
+										{
+											"key": "personCode",
+											"value": "884407"
+										},
+										{
+											"key": "commerceCode",
+											"value": "0038833422"
+										},
+										{
+											"key": "billingDateFrom",
+											"value": "20250501"
+										},
+										{
+											"key": "billingDateTo",
+											"value": "20251024"
+										},
+										{
+											"key": "listDateFrom",
+											"value": "20251001"
+										},
+										{
+											"key": "listDateTo",
+											"value": "20251031"
+										},
+										{
+											"key": "order",
+											"value": "D"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4. Generar token JWE operaciones por TPV",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json();\r",
+											"pm.environment.set('tokenJWE', response.jwe);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWT}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Clientid",
+										"value": "darwin",
+										"type": "default"
+									},
+									{
+										"key": "Authentication",
+										"value": "Bearer {{tokenJWT}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"keyalias\": \"admisionemp_pre\",\n    \"expiration\": \"60\",\n    \"payload\": {\n        \"commerceContract\": \"004918125240196905\",\n        \"order\": \"D\",\n        \"dateFrom\": \"20251001\",\n        \"dateTo\": \"20251024\"\n    }\n}"
+								},
+								"url": {
+									"raw": "https://srvnuarintra.santander.pru.bsch/cos/jwe/scos/generate",
+									"protocol": "https",
+									"host": [
+										"srvnuarintra",
+										"santander",
+										"pru",
+										"bsch"
+									],
+									"path": [
+										"cos",
+										"jwe",
+										"scos",
+										"generate"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4. Nuek - Operaciones TPV",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWE}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://repgtnprep.minsaitpaymentsprocessing.com/api/TPV/tpv_clearance?commerceContract=004918125240196905&order=D&dateFrom=20251001&dateTo=20251024",
+									"protocol": "https",
+									"host": [
+										"repgtnprep",
+										"minsaitpaymentsprocessing",
+										"com"
+									],
+									"path": [
+										"api",
+										"TPV",
+										"tpv_clearance"
+									],
+									"query": [
+										{
+											"key": "commerceContract",
+											"value": "004918125240196905"
+										},
+										{
+											"key": "order",
+											"value": "D"
+										},
+										{
+											"key": "dateFrom",
+											"value": "20251001"
+										},
+										{
+											"key": "dateTo",
+											"value": "20251024"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Generar token JWE Transacciones por TPV",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json();\r",
+											"pm.environment.set('tokenJWE', response.jwe);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWT}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Clientid",
+										"value": "darwin",
+										"type": "default"
+									},
+									{
+										"key": "Authentication",
+										"value": "Bearer {{tokenJWT}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"keyalias\": \"admisionemp_pre\",\n    \"expiration\": \"60\",\n    \"payload\": {\n        \"commerceContract\": \"004918125240196905\",\n        \"valueDate\": \"20251017\",\n        \"totalDate\": \"20251016\",\n        \"totalOrder\": \"662530\"\n    }\n}"
+								},
+								"url": {
+									"raw": "https://srvnuarintra.santander.pru.bsch/cos/jwe/scos/generate",
+									"protocol": "https",
+									"host": [
+										"srvnuarintra",
+										"santander",
+										"pru",
+										"bsch"
+									],
+									"path": [
+										"cos",
+										"jwe",
+										"scos",
+										"generate"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Nuek - Transacciones por TPV",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{tokenJWE}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://repgtnprep.minsaitpaymentsprocessing.com/api/CierreCaja/clearance_operations?commerceContract=004918125240196905&valueDate=20251017&totalDate=20251016&totalOrder=662530",
+									"protocol": "https",
+									"host": [
+										"repgtnprep",
+										"minsaitpaymentsprocessing",
+										"com"
+									],
+									"path": [
+										"api",
+										"CierreCaja",
+										"clearance_operations"
+									],
+									"query": [
+										{
+											"key": "commerceContract",
+											"value": "004918125240196905"
+										},
+										{
+											"key": "valueDate",
+											"value": "20251017"
+										},
+										{
+											"key": "totalDate",
+											"value": "20251016"
+										},
+										{
+											"key": "totalOrder",
+											"value": "662530"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
