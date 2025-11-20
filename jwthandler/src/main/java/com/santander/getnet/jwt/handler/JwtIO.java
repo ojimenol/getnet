@@ -23,13 +23,15 @@ import java.util.UUID;
 public class JwtIO {
 
     public static void main(String[] args) {
-        var jwtHandler = new JwtIO();
+        /*var jwtHandler = new JwtIO();
 
         var jwt = jwtHandler.createJWTAndEncrypt();
         System.out.println("Jwe: " + jwt);
 
         var jwt2 = jwtHandler.createJWTAndSign();
-        System.out.println("Jws: " + jwt2);
+        System.out.println("Jws: " + jwt2);*/
+        System.out.println("Jwe: " + new JwtCrypto().buildJWEfromJWT(buildClaimSet()));
+        System.out.println("Jws: " + new JwtSigner().buildJWSfromJWT(buildClaimSet()));
     }
 
     public String createJWTAndSign() {
@@ -146,7 +148,7 @@ public class JwtIO {
         return out;
     }
 
-    private JWTClaimsSet buildClaimSet() {
+    private static JWTClaimsSet buildClaimSet() {
         JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder();
         claimsSet.issuer("https://my-auth-server.com");
         claimsSet.subject("John Kerr");
