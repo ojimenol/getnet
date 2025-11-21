@@ -1,0 +1,16 @@
+logging:
+  level:
+    root: ERROR
+    com.santander: INFO
+
+spring:
+  profiles:
+    active: test
+  application:
+    name: gpp-srv-merchant-portal-service
+    version: 1.0.0-SNAPSHOT
+
+getnet:
+  client:
+    nuek:
+      url: http://localhost:8082
