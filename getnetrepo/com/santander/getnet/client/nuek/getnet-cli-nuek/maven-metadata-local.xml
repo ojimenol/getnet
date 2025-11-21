@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.santander.getnet.client.nuek</groupId>
+  <artifactId>getnet-cli-nuek</artifactId>
+  <versioning>
+    <versions>
+      <version>1.0.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20251121110323</lastUpdated>
+  </versioning>
+</metadata>

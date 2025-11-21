@@ -12,6 +12,7 @@
 
 # Package Files #
 *.jar
+!getnetrepo/**/*.jar
 *.war
 *.nar
 *.ear
