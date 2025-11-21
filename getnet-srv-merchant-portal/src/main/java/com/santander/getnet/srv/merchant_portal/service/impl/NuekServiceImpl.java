@@ -1,10 +1,10 @@
 package com.santander.getnet.srv.merchant_portal.service.impl;
 
-import com.santander.getnet.external.client.model.api.NuekApi;
-import com.santander.getnet.external.client.model.data.GetComercios200Response;
-import com.santander.getnet.external.client.model.data.GetComerciosTPVs200Response;
-import com.santander.getnet.external.client.model.data.GetGroupedBilling200Response;
-import com.santander.getnet.external.client.model.data.GetTPVOperations200Response;
+import com.santander.getnet.nuek.client.model.api.NuekApi;
+import com.santander.getnet.nuek.client.model.data.GetComercios200Response;
+import com.santander.getnet.nuek.client.model.data.GetComerciosTPVs200Response;
+import com.santander.getnet.nuek.client.model.data.GetGroupedBilling200Response;
+import com.santander.getnet.nuek.client.model.data.GetTPVOperations200Response;
 import com.santander.getnet.srv.merchant_portal.dto.*;
 import com.santander.getnet.srv.merchant_portal.service.NuekService;
 import org.slf4j.Logger;

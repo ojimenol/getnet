@@ -1,6 +1,6 @@
 package com.santander.getnet.srv.merchant_portal.config;
 
-import com.santander.getnet.external.client.model.api.NuekApi;
+import com.santander.getnet.nuek.client.model.api.NuekApi;
 import io.netty.resolver.DefaultAddressResolverGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

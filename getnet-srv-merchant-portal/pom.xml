@@ -73,8 +73,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.santander.getnet.external.client.example</groupId>
-      <artifactId>getnet-ext-cli-example</artifactId>
+      <groupId>com.santander.getnet.client.nuek</groupId>
+      <artifactId>getnet-cli-nuek</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
