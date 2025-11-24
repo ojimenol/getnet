@@ -1,10 +1,7 @@
 package com.santander.getnet.srv.merchant_portal.service.impl;
 
 import com.santander.getnet.nuek.client.model.api.NuekApi;
-import com.santander.getnet.nuek.client.model.data.GetComercios200Response;
-import com.santander.getnet.nuek.client.model.data.GetComerciosTPVs200Response;
-import com.santander.getnet.nuek.client.model.data.GetGroupedBilling200Response;
-import com.santander.getnet.nuek.client.model.data.GetTPVOperations200Response;
+import com.santander.getnet.nuek.client.model.data.*;
 import com.santander.getnet.srv.merchant_portal.dto.*;
 import com.santander.getnet.srv.merchant_portal.service.NuekService;
 import org.slf4j.Logger;
@@ -27,7 +24,7 @@ public class NuekServiceImpl implements NuekService {
   }
 
   @Override
-  public CommercesDTO getCommerces(MetadataDTO metadata) {
+  public CommercesDTO getCommerces(NuekRequestDTO metadata) {
 
     return nuekClient.getComercios(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
             metadata.getDateFrom(), metadata.getDateTo(), metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo())
@@ -39,37 +36,47 @@ public class NuekServiceImpl implements NuekService {
   }
 
   @Override
-  public GroupedBillingDTO getGroupedBilling(MetadataDTO metadata) {
-    return nuekClient.getGroupedBilling(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
+  public GroupedBillingDTO getGroupedBilling(NuekRequestDTO metadata) {
+    return nuekClient.getComerciosGroupedBilling(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
             metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo())
         .blockOptional()
-        .map(GetGroupedBilling200Response::getGroupedBilling)
+        .map(GetComerciosGroupedBilling200Response::getGroupedBilling)
         .map(items ->
             toDTO(items, GroupedBillingDTO.BillingDTO.class, elems -> GroupedBillingDTO.builder().billings(elems).build()))
         .orElse(null);
   }
 
   @Override
-  public CommercesTpvsDTO getCommercesTpv(MetadataDTO metadata) {
+  public CommercesTpvsDTO getCommercesTpv(NuekRequestDTO metadata) {
 
-    return nuekClient.getComerciosTPVs(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
+    return nuekClient.getComercioTpvs(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
             metadata.getCommerceCode(), metadata.getDateFrom(), metadata.getDateTo(),
             metadata.getListDateFrom(), metadata.getListDateTo(), metadata.getOrder())
         .blockOptional()
-        .map(GetComerciosTPVs200Response::getTpvs)
+        .map(GetComercioTpvs200Response::getTpvs)
         .map(items ->
             toDTO(items, CommercesTpvsDTO.TpvDTO.class, elems -> CommercesTpvsDTO.builder().tpvs(elems).build()))
         .orElse(null);
   }
 
   @Override
-  public OperationsTpvDTO getOperacionesTpv(MetadataDTO metadata) {
-    return nuekClient.getTPVOperations(new HttpHeaders(), metadata.getCommerceContract(), metadata.getOrder(), metadata.getDateFrom(), metadata.getDateTo())
+  public OperationsTpvDTO getOperationsTpv(NuekRequestDTO metadata) {
+    return nuekClient.getTpvOperations(new HttpHeaders(), metadata.getCommerceContract(), metadata.getOrder(), metadata.getDateFrom(), metadata.getDateTo())
         .blockOptional()
-        .map(GetTPVOperations200Response::getOperations)
+        .map(GetTpvOperations200Response::getOperations)
         .map(items ->
             toDTO(items, OperationsTpvDTO.OperationTpvDTO.class, elems -> OperationsTpvDTO.builder().operations(elems).build()))
         .orElse(null);
+  }
+
+  @Override
+  public TransactionsTpvDTO getTransactionsTpv(NuekRequestDTO metadata) {
+    return nuekClient.getTpvTansactions(new HttpHeaders(), metadata.getCommerceContract(), metadata.getOrder(), metadata.getDateFrom(), metadata.getDateTo())
+            .blockOptional()
+            .map(GetTpvTansactions200Response::getTransactions)
+            .map(items ->
+                    toDTO(items, TransactionsTpvDTO.TransactionTpvDTO.class, elems -> TransactionsTpvDTO.builder().transactions(elems).build()))
+            .orElse(null);
   }
 
   private <T, I, D> D toDTO(List<T> elems, Class<I> itemsClass, Function<List<I>, D> dtoBuilder) {

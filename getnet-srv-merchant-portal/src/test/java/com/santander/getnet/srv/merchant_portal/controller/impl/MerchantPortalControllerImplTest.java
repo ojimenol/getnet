@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.santander.getnet.srv.merchant_portal.dto.CommercesDTO;
-import com.santander.getnet.srv.merchant_portal.dto.MetadataDTO;
+import com.santander.getnet.srv.merchant_portal.dto.NuekRequestDTO;
 import com.santander.getnet.srv.merchant_portal.service.NuekService;
 import com.santander.getnet.srv.merchant_portal.utils.TestUtils;
 import java.io.IOException;
@@ -40,11 +40,11 @@ class MerchantPortalControllerImplTest {
   void getCommerces() throws IOException {
 
     final var request = TestUtils.readObjectFromResources("files/request_commerces.json",
-        jsonMapper, MetadataDTO.class);
+        jsonMapper, NuekRequestDTO.class);
 
     var mockedResult = CommercesDTO.builder().build();
 
-    when(nuekService.getCommerces(any(MetadataDTO.class)))
+    when(nuekService.getCommerces(any(NuekRequestDTO.class)))
         .thenReturn(mockedResult);
 
     var inParams = Map.of(
@@ -67,7 +67,7 @@ class MerchantPortalControllerImplTest {
         .expectBody(CommercesDTO.class)
         .returnResult();
 
-    verify(nuekService).getCommerces(any(MetadataDTO.class));
+    verify(nuekService).getCommerces(any(NuekRequestDTO.class));
 
     assertEquals(mockedResult, result.getResponseBody());
 

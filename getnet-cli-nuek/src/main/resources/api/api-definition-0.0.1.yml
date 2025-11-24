@@ -37,8 +37,50 @@ components:
           type: string
         payload:
           type: object
-      required: [keyalias, expiration, payload]
-
+          properties:
+            personCode:
+              type: string
+              example: '884407'
+            personType:
+              type: string
+              example: 'F'
+            billingDateFrom:
+              type: string
+              example: '20250501'
+            billingDateTo:
+              type: string
+              example: '20251024'
+            listDateFrom:
+              type: string
+              example: '20251001'
+            listDateTo:
+              type: string
+              example: '20251031'
+            order:
+              type: string
+              example: 'D'
+            commerceCode:
+              type: string
+              example: '0038833422'
+            commerceContract:
+              type: string
+              example: '884407'
+            dateFrom:
+              type: string
+              example: '20251001'
+            dateTo:
+              type: string
+              example: '20251031'
+            valueDate:
+              type: string
+              example: '20251001'
+            totalDate:
+              type: string
+              example: '20251031'
+            totalOrder:
+              type: string
+              example: '662530'
+      required: [ keyalias, expiration, payload ]
 
 paths:
 
@@ -47,7 +89,7 @@ paths:
   ###########################################################
   /sas/authenticate/credentials:
     post:
-      operationId: getSASTokens
+      operationId: postGenerateSASTokens
       summary: Get SAS Credentials Token (JWT & tokenCorp)
       tags: [Nuek]
       requestBody:
@@ -65,6 +107,8 @@ paths:
                 type: object
                 properties:
                   tokenCorp:
+                    type: string
+                  cookieCorp:
                     type: string
                   jwt:
                     type: string
@@ -110,28 +154,58 @@ paths:
       parameters:
         - in: query
           name: personCode
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '884407'
         - in: query
           name: personType
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: 'F'
         - in: query
           name: billingDateFrom
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20250501'
         - in: query
           name: billingDateTo
-          schema: { type: string }
-        - in: query
-          name: listDateFrom
-          schema: { type: string }
-        - in: query
-          name: listDateTo
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20251024'
         - in: query
           name: order
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: 'D'
+        - in: query
+          name: listDateFrom
+          required: true
+          schema:
+            type: string
+            example: '20251001'
+        - in: query
+          name: listDateTo
+          required: true
+          schema:
+            type: string
+            example: '20251031'
       responses:
         "200":
-          description: OK
+          description: "List of Comercios"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comercios:
+                    type: array
+                    items:
+                      type: object
 
   ###########################################################
   ## 2. NUek Grouped Billing
@@ -146,22 +220,46 @@ paths:
       parameters:
         - in: query
           name: personCode
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '884407'
         - in: query
           name: personType
-          schema: { type: string }
-        - in: query
-          name: listDateFrom
-          schema: { type: string }
-        - in: query
-          name: listDateTo
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: 'F'
         - in: query
           name: order
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: 'D'
+        - in: query
+          name: listDateFrom
+          required: true
+          schema:
+            type: string
+            example: '20251001'
+        - in: query
+          name: listDateTo
+          required: true
+          schema:
+            type: string
+            example: '20251031'
       responses:
         "200":
-          description: OK
+          description: "Grouped billing information"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groupedBilling:
+                    type: array
+                    items:
+                      type: object
 
   ###########################################################
   ## 3. NUek TPVs
@@ -176,31 +274,64 @@ paths:
       parameters:
         - in: query
           name: personType
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: 'F'
         - in: query
           name: personCode
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '884407'
         - in: query
           name: commerceCode
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '0038833422'
         - in: query
           name: billingDateFrom
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20250501'
         - in: query
           name: billingDateTo
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20251024'
         - in: query
           name: listDateFrom
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20251001'
         - in: query
           name: listDateTo
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20251031'
         - in: query
           name: order
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: 'D'
       responses:
         "200":
-          description: OK
+          description: "List of TPVs"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tpvs:
+                    type: array
+                    items:
+                      type: object
 
 
   ###########################################################
@@ -216,19 +347,41 @@ paths:
       parameters:
         - in: query
           name: commerceContract
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '004918125240196905'
         - in: query
           name: order
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: 'D'
         - in: query
           name: dateFrom
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20251001'
         - in: query
           name: dateTo
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20251024'
       responses:
         "200":
-          description: OK
+          description: "List of TPV clearance operations"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operations:
+                    type: array
+                    items:
+                      type: object
+
 
   ###########################################################
   ## 5. NUek – Transacciones TPV
@@ -243,16 +396,37 @@ paths:
       parameters:
         - in: query
           name: commerceContract
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '004918125240196905'
         - in: query
           name: valueDate
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20251001'
         - in: query
           name: totalDate
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: '20251001'
         - in: query
           name: totalOrder
-          schema: { type: string }
+          required: true
+          schema:
+            type: string
+            example: 'D'
       responses:
         "200":
-          description: OK
+          description: "List of TPV clearance transactions"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      type: object

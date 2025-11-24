@@ -4,11 +4,13 @@ import com.santander.getnet.srv.merchant_portal.dto.*;
 
 public interface NuekService {
 
-  CommercesDTO getCommerces(MetadataDTO metadata);
+  CommercesDTO getCommerces(NuekRequestDTO metadata);
 
-  GroupedBillingDTO getGroupedBilling(MetadataDTO metadata);
+  GroupedBillingDTO getGroupedBilling(NuekRequestDTO metadata);
 
-  CommercesTpvsDTO getCommercesTpv(MetadataDTO metadata);
+  CommercesTpvsDTO getCommercesTpv(NuekRequestDTO metadata);
 
-  OperationsTpvDTO getOperacionesTpv(MetadataDTO metadata);
+  OperationsTpvDTO getOperationsTpv(NuekRequestDTO metadata);
+
+  TransactionsTpvDTO getTransactionsTpv(NuekRequestDTO metadata);
 }

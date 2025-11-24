@@ -1,8 +1,7 @@
 package com.santander.getnet.srv.merchant_portal.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.santander.getnet.srv.merchant_portal.dto.MetadataDTO;
+import com.santander.getnet.srv.merchant_portal.dto.NuekRequestDTO;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
@@ -46,8 +45,8 @@ public class TestUtils {
     }
   }
 
-  public static MetadataDTO fakeApiMetadataDTO(String personCode, String personType, String order) {
-    return MetadataDTO.builder()
+  public static NuekRequestDTO fakeApiMetadataDTO(String personCode, String personType, String order) {
+    return NuekRequestDTO.builder()
         .personCode(personCode)
         .personType(personType)
         .order(order)

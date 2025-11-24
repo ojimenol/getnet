@@ -10,7 +10,7 @@ import java.util.Map;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MetadataDTO {
+public class NuekRequestDTO {
 
   private String personCode;
   private String personType;

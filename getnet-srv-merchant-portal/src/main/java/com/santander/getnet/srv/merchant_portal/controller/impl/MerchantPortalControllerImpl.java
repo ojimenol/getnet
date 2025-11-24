@@ -4,7 +4,6 @@ import com.santander.getnet.srv.merchant_portal.controller.MerchantPortalControl
 import com.santander.getnet.srv.merchant_portal.dto.*;
 import com.santander.getnet.srv.merchant_portal.service.NuekService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -15,9 +14,6 @@ import org.springframework.web.server.ServerWebInputException;
 @RequiredArgsConstructor
 public class MerchantPortalControllerImpl implements MerchantPortalController {
 
-  public static final String HDR_ENTITY_COMPANIES = "entity-companies";
-  @Value("${gpp.responseHeader.globalExecutionId:false}")
-  private boolean enabledResponseHeader;
   private static final String HDR_X_CLIENT_ID = "x-sub-id";
 
   private final NuekService nuekService;
@@ -32,7 +28,7 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
       @PathVariable("personType") String personType,
       @PathVariable("order") String order) {
 
-      var metadata = MetadataDTO.builder()
+      var metadata = NuekRequestDTO.builder()
           .personCode(personCode)
           .personType(personType)
           .order(order)
@@ -65,7 +61,7 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
       @RequestHeader(HDR_X_CLIENT_ID) String xClientId,
       @PathVariable("requestId") String requestId) {
 
-    return ResponseEntity.ok(nuekService.getOperacionesTpv(null));
+    return ResponseEntity.ok(nuekService.getOperationsTpv(null));
   }
 
   @ExceptionHandler(value = {Exception.class})
