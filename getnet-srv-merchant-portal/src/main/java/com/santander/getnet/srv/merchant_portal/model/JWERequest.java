@@ -17,7 +17,7 @@ public class JWERequest {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    static class JWEPayloadRequest {
+    public static class JWEPayloadRequest {
         private String billingDateFrom;
         private String billingDateTo;
         private String listDateFrom;
