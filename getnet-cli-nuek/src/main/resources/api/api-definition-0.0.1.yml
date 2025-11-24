@@ -1,0 +1,325 @@
+openapi: 3.0.0
+info:
+  title: Merchant_Portal
+  description: API for the Merchant Portal
+  version: 1.0.0
+
+servers:
+  - url: https://srvnuarintra.santander.pru.bsch
+
+paths:
+  /sas/authenticate/credentials:
+    post:
+      tags:
+        - Nuek
+      summary: "Credenciales SAS PRE"
+      operationId: "authenticateCredentials"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idAttributes:
+                  type: object
+                  properties:
+                    uid:
+                      type: string
+                      example: aplcmce
+                password:
+                  type: string
+                  example: KCvtuy34#
+                realm:
+                  type: string
+                  example: SantanderBCE
+      responses:
+        '200':
+          description: "Successful authentication"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokenCorp:
+                    type: string
+                  jwt:
+                    type: string
+
+  /cos/jwe/scos/generate:
+    post:
+      tags:
+        - Nuek
+      summary: "Generar token JWE Comercios"
+      operationId: "generateJWE"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keyalias:
+                  type: string
+                  example: admisionemp_pre
+                expiration:
+                  type: string
+                  example: '60'
+                payload:
+                  type: object
+                  properties:
+                    personCode:
+                      type: string
+                      example: '884407'
+                    personType:
+                      type: string
+                      example: 'F'
+                    billingDateFrom:
+                      type: string
+                      example: '20250501'
+                    billingDateTo:
+                      type: string
+                      example: '20251024'
+                    listDateFrom:
+                      type: string
+                      example: '20251001'
+                    listDateTo:
+                      type: string
+                      example: '20251031'
+                    order:
+                      type: string
+                      example: 'D'
+      responses:
+        '200':
+          description: "Token JWE generated"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwe:
+                    type: string
+
+  /api/Comercios/commerces:
+    get:
+      tags:
+        - Nuek
+      summary: "Nuek - Comercios"
+      operationId: "getComercios"
+      parameters:
+        - in: query
+          name: personCode
+          required: true
+          schema:
+            type: string
+            example: '884407'
+        - in: query
+          name: personType
+          required: true
+          schema:
+            type: string
+            example: 'F'
+        - in: query
+          name: billingDateFrom
+          required: true
+          schema:
+            type: string
+            example: '20250501'
+        - in: query
+          name: billingDateTo
+          required: true
+          schema:
+            type: string
+            example: '20251024'
+        - in: query
+          name: order
+          required: true
+          schema:
+            type: string
+            example: 'D'
+        - in: query
+          name: listDateFrom
+          required: true
+          schema:
+            type: string
+            example: '20251001'
+        - in: query
+          name: listDateTo
+          required: true
+          schema:
+            type: string
+            example: '20251031'
+      responses:
+        '200':
+          description: "List of Comercios"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comercios:
+                    type: array
+                    items:
+                      type: object
+
+  /api/Comercios/groupedbilling:
+    get:
+      tags:
+        - Nuek
+      summary: "Nuek - Grouped Billing"
+      operationId: "getGroupedBilling"
+      parameters:
+        - in: query
+          name: personCode
+          required: true
+          schema:
+            type: string
+            example: '884407'
+        - in: query
+          name: personType
+          required: true
+          schema:
+            type: string
+            example: 'F'
+        - in: query
+          name: order
+          required: true
+          schema:
+            type: string
+            example: 'D'
+        - in: query
+          name: listDateFrom
+          required: true
+          schema:
+            type: string
+            example: '20251001'
+        - in: query
+          name: listDateTo
+          required: true
+          schema:
+            type: string
+            example: '20251031'
+      responses:
+        '200':
+          description: "Grouped billing information"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groupedBilling:
+                    type: array
+                    items:
+                      type: object
+
+  /api/Comercio/tpvs:
+    get:
+      tags:
+        - Nuek
+      summary: "Nuek - Comercios TPVs"
+      operationId: "getComerciosTPVs"
+      parameters:
+        - in: query
+          name: personType
+          required: true
+          schema:
+            type: string
+            example: 'F'
+        - in: query
+          name: personCode
+          required: true
+          schema:
+            type: string
+            example: '884407'
+        - in: query
+          name: commerceCode
+          required: true
+          schema:
+            type: string
+            example: '0038833422'
+        - in: query
+          name: billingDateFrom
+          required: true
+          schema:
+            type: string
+            example: '20250501'
+        - in: query
+          name: billingDateTo
+          required: true
+          schema:
+            type: string
+            example: '20251024'
+        - in: query
+          name: listDateFrom
+          required: true
+          schema:
+            type: string
+            example: '20251001'
+        - in: query
+          name: listDateTo
+          required: true
+          schema:
+            type: string
+            example: '20251031'
+        - in: query
+          name: order
+          required: true
+          schema:
+            type: string
+            example: 'D'
+      responses:
+        '200':
+          description: "List of TPVs"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tpvs:
+                    type: array
+                    items:
+                      type: object
+
+  /api/TPV/tpv_clearance:
+    get:
+      tags:
+        - Nuek
+      summary: "Nuek - Operaciones TPV"
+      operationId: "getTPVOperations"
+      parameters:
+        - in: query
+          name: commerceContract
+          required: true
+          schema:
+            type: string
+            example: '004918125240196905'
+        - in: query
+          name: order
+          required: true
+          schema:
+            type: string
+            example: 'D'
+        - in: query
+          name: dateFrom
+          required: true
+          schema:
+            type: string
+            example: '20251001'
+        - in: query
+          name: dateTo
+          required: true
+          schema:
+            type: string
+            example: '20251024'
+      responses:
+        '200':
+          description: "List of TPV clearance operations"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operations:
+                    type: array
+                    items:
+                      type: object
