@@ -1,41 +1,64 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: Merchant_Portal
-  description: API for the Merchant Portal
-  version: 1.0.0
+  title: Merchant Portal (Converted from Postman)
+  version: "1.0.0"
 
 servers:
   - url: https://srvnuarintra.santander.pru.bsch
+  - url: https://repgtnprep.minsaitpaymentsprocessing.com
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    CredentialsRequest:
+      type: object
+      properties:
+        idAttributes:
+          type: object
+          properties:
+            uid:
+              type: string
+        password:
+          type: string
+        realm:
+          type: string
+      required: [idAttributes, password, realm]
+
+    JWEGenerateRequest:
+      type: object
+      properties:
+        keyalias:
+          type: string
+        expiration:
+          type: string
+        payload:
+          type: object
+      required: [keyalias, expiration, payload]
+
 
 paths:
+
+  ###########################################################
+  ## SAS CREDENTIALS / TOKEN LOGIN
+  ###########################################################
   /sas/authenticate/credentials:
     post:
-      tags:
-        - Nuek
-      summary: "Credenciales SAS PRE"
-      operationId: "authenticateCredentials"
+      operationId: getSASTokens
+      summary: Get SAS Credentials Token (JWT & tokenCorp)
+      tags: [Nuek]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                idAttributes:
-                  type: object
-                  properties:
-                    uid:
-                      type: string
-                      example: aplcmce
-                password:
-                  type: string
-                  example: KCvtuy34#
-                realm:
-                  type: string
-                  example: SantanderBCE
+              $ref: "#/components/schemas/CredentialsRequest"
       responses:
-        '200':
-          description: "Successful authentication"
+        "200":
+          description: Authentication successful
           content:
             application/json:
               schema:
@@ -46,52 +69,25 @@ paths:
                   jwt:
                     type: string
 
+  ###########################################################
+  ## GENERATE JWE TOKENS
+  ###########################################################
   /cos/jwe/scos/generate:
     post:
-      tags:
-        - Nuek
-      summary: "Generar token JWE Comercios"
-      operationId: "generateJWE"
+      operationId: postJWEGenerateToken
+      summary: Generate JWE Token
+      tags: [Nuek]
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                keyalias:
-                  type: string
-                  example: admisionemp_pre
-                expiration:
-                  type: string
-                  example: '60'
-                payload:
-                  type: object
-                  properties:
-                    personCode:
-                      type: string
-                      example: '884407'
-                    personType:
-                      type: string
-                      example: 'F'
-                    billingDateFrom:
-                      type: string
-                      example: '20250501'
-                    billingDateTo:
-                      type: string
-                      example: '20251024'
-                    listDateFrom:
-                      type: string
-                      example: '20251001'
-                    listDateTo:
-                      type: string
-                      example: '20251031'
-                    order:
-                      type: string
-                      example: 'D'
+              $ref: "#/components/schemas/JWEGenerateRequest"
       responses:
-        '200':
-          description: "Token JWE generated"
+        "200":
+          description: JWE token returned
           content:
             application/json:
               schema:
@@ -100,226 +96,163 @@ paths:
                   jwe:
                     type: string
 
+
+  ###########################################################
+  ## 1. NUek Comercios
+  ###########################################################
   /api/Comercios/commerces:
     get:
-      tags:
-        - Nuek
-      summary: "Nuek - Comercios"
-      operationId: "getComercios"
+      operationId: getComercios
+      summary: NUek – Comercios
+      tags: [Nuek]
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: personCode
-          required: true
-          schema:
-            type: string
-            example: '884407'
+          schema: { type: string }
         - in: query
           name: personType
-          required: true
-          schema:
-            type: string
-            example: 'F'
+          schema: { type: string }
         - in: query
           name: billingDateFrom
-          required: true
-          schema:
-            type: string
-            example: '20250501'
+          schema: { type: string }
         - in: query
           name: billingDateTo
-          required: true
-          schema:
-            type: string
-            example: '20251024'
-        - in: query
-          name: order
-          required: true
-          schema:
-            type: string
-            example: 'D'
+          schema: { type: string }
         - in: query
           name: listDateFrom
-          required: true
-          schema:
-            type: string
-            example: '20251001'
+          schema: { type: string }
         - in: query
           name: listDateTo
-          required: true
-          schema:
-            type: string
-            example: '20251031'
+          schema: { type: string }
+        - in: query
+          name: order
+          schema: { type: string }
       responses:
-        '200':
-          description: "List of Comercios"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  comercios:
-                    type: array
-                    items:
-                      type: object
+        "200":
+          description: OK
 
+  ###########################################################
+  ## 2. NUek Grouped Billing
+  ###########################################################
   /api/Comercios/groupedbilling:
     get:
-      tags:
-        - Nuek
-      summary: "Nuek - Grouped Billing"
-      operationId: "getGroupedBilling"
+      operationId: getComerciosGroupedBilling
+      summary: NUek – Grouped Billing
+      tags: [Nuek]
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: personCode
-          required: true
-          schema:
-            type: string
-            example: '884407'
+          schema: { type: string }
         - in: query
           name: personType
-          required: true
-          schema:
-            type: string
-            example: 'F'
-        - in: query
-          name: order
-          required: true
-          schema:
-            type: string
-            example: 'D'
+          schema: { type: string }
         - in: query
           name: listDateFrom
-          required: true
-          schema:
-            type: string
-            example: '20251001'
+          schema: { type: string }
         - in: query
           name: listDateTo
-          required: true
-          schema:
-            type: string
-            example: '20251031'
+          schema: { type: string }
+        - in: query
+          name: order
+          schema: { type: string }
       responses:
-        '200':
-          description: "Grouped billing information"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  groupedBilling:
-                    type: array
-                    items:
-                      type: object
+        "200":
+          description: OK
 
+  ###########################################################
+  ## 3. NUek TPVs
+  ###########################################################
   /api/Comercio/tpvs:
     get:
-      tags:
-        - Nuek
-      summary: "Nuek - Comercios TPVs"
-      operationId: "getComerciosTPVs"
+      operationId: getComercioTpvs
+      summary: NUek – Comercios TPVs
+      tags: [Nuek]
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: personType
-          required: true
-          schema:
-            type: string
-            example: 'F'
+          schema: { type: string }
         - in: query
           name: personCode
-          required: true
-          schema:
-            type: string
-            example: '884407'
+          schema: { type: string }
         - in: query
           name: commerceCode
-          required: true
-          schema:
-            type: string
-            example: '0038833422'
+          schema: { type: string }
         - in: query
           name: billingDateFrom
-          required: true
-          schema:
-            type: string
-            example: '20250501'
+          schema: { type: string }
         - in: query
           name: billingDateTo
-          required: true
-          schema:
-            type: string
-            example: '20251024'
+          schema: { type: string }
         - in: query
           name: listDateFrom
-          required: true
-          schema:
-            type: string
-            example: '20251001'
+          schema: { type: string }
         - in: query
           name: listDateTo
-          required: true
-          schema:
-            type: string
-            example: '20251031'
+          schema: { type: string }
         - in: query
           name: order
-          required: true
-          schema:
-            type: string
-            example: 'D'
+          schema: { type: string }
       responses:
-        '200':
-          description: "List of TPVs"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  tpvs:
-                    type: array
-                    items:
-                      type: object
+        "200":
+          description: OK
 
+
+  ###########################################################
+  ## 4. NUek Operaciones TPV
+  ###########################################################
   /api/TPV/tpv_clearance:
     get:
-      tags:
-        - Nuek
-      summary: "Nuek - Operaciones TPV"
-      operationId: "getTPVOperations"
+      operationId: getTpvOperations
+      summary: NUek – TPV Operations
+      tags: [Nuek]
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: commerceContract
-          required: true
-          schema:
-            type: string
-            example: '004918125240196905'
+          schema: { type: string }
         - in: query
           name: order
-          required: true
-          schema:
-            type: string
-            example: 'D'
+          schema: { type: string }
         - in: query
           name: dateFrom
-          required: true
-          schema:
-            type: string
-            example: '20251001'
+          schema: { type: string }
         - in: query
           name: dateTo
-          required: true
-          schema:
-            type: string
-            example: '20251024'
+          schema: { type: string }
       responses:
-        '200':
-          description: "List of TPV clearance operations"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  operations:
-                    type: array
-                    items:
-                      type: object
+        "200":
+          description: OK
+
+  ###########################################################
+  ## 5. NUek – Transacciones TPV
+  ###########################################################
+  /api/CierreCaja/clearance_operations:
+    get:
+      operationId: getTpvTansactions
+      summary: NUek – TPV Transactions
+      tags: [Nuek]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: commerceContract
+          schema: { type: string }
+        - in: query
+          name: valueDate
+          schema: { type: string }
+        - in: query
+          name: totalDate
+          schema: { type: string }
+        - in: query
+          name: totalOrder
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
