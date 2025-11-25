@@ -96,7 +96,7 @@ import reactor.core.publisher.Flux;
 
       if(headers!=null) {
         if(!headers.isEmpty()) {
-          for (String header : headers.keySet()) {
+          for (String header : headers.headerNames()) {
             headerParams.add(header, apiClient.parameterToString(headers.get(header)));
           }
         }

@@ -8,8 +8,6 @@ import com.santander.getnet.srv.merchant_portal.model.JWERequest;
 import com.santander.getnet.srv.merchant_portal.model.JWEToken;
 import com.santander.getnet.srv.merchant_portal.model.SasToken;
 import com.santander.getnet.srv.merchant_portal.service.NuekAuthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,6 @@ import java.util.Optional;
 
 @Service
 public class NuekAuthServiceImpl implements NuekAuthService {
-    private static final Logger log = LoggerFactory.getLogger(NuekAuthServiceImpl.class);
 
     private final NuekApi nuekClient;
     private final JWERequestMapper jweRequestMapper;
