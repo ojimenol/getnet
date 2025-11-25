@@ -9,30 +9,32 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-public class CommercesDTO {
+public class CommerceTpvsDTO {
 
-    private List<CommerceDTO> commerces;
+    private String name;
+
+    private List<TpvDTO> tpvs;
 
     @Builder
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    @EqualsAndHashCode
-    public static class CommerceDTO {
+    public static class TpvDTO {
         private String personType;
         private String personCode;
         private String commerceCode;
-        private String commerceContract;
-        private String iban;
-        private String commerceName;
-        private String postalAddress;
+        private Integer numTpv;
+        private String numSerialTpv;
         private Double groupedBilling;
         private String groupedBillingDate;
         private String currency;
+        private String terminalEnvCode;
+        private String terminalEnvDesc;
+        private String terminalModel;
+        private String terminalModelDesc;
         private String dateFrom;
         private Double totalGroupedBilling;
-        private String flagTpv;
+        private String dataDatePart;
     }
 }

@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.santander.getnet.external.client.example.autoconfig.NuekClientAutoConfiguration
+  com.santander.getnet.nuek.client.autoconfig.NuekClientAutoConfiguration

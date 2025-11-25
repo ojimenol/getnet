@@ -19,6 +19,8 @@ public class GroupedBillingDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class BillingDTO {
-        private String name;
+        private String groupedBillingDate;
+        private Double groupedBilling;
+        private String currency;
     }
 }

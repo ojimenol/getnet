@@ -82,6 +82,239 @@ components:
               example: '662530'
       required: [ keyalias, expiration, payload ]
 
+    CommercesResponse:
+      type: object
+      properties:
+        commerceList:
+          type: array
+          items:
+            $ref: "#/components/schemas/Commerce"
+
+    GroupedBillingResponse:
+      type: object
+      properties:
+        commerceGroupedBillingList:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupedBilling"
+
+    CommerceTpvsResponse:
+      type: object
+      properties:
+        commerceTPVs:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommerceTpv"
+
+    TpvOperationsResponse:
+      type: object
+      properties:
+        numOperations:
+          type: integer
+          format: int32
+        clearances:
+          type: array
+          items:
+            $ref: "#/components/schemas/TpvOperation"
+    TpvTransactionsResponse:
+      type: object
+      properties:
+        operationClearances:
+          type: array
+          items:
+            $ref: "#/components/schemas/TpvTransaction"
+
+
+    Commerce:
+      type: object
+      properties:
+        personType:
+          type: string
+          example: 'F'
+        personCode:
+          type: string
+          example: '884407'
+        commerceCode:
+          type: string
+          example: '0038833422'
+        commerceContract:
+          type: string
+          example: '004918125240196905'
+        iban:
+          type: string
+        commerceName:
+          type: string
+          example: 'COMERCIO PRUEBAS'
+        postalAddress:
+          type: string
+          example: 'CL SESCTOR ISLAS 14  32705 ARNUIDE'
+        groupedBilling:
+          type: number
+          format: double
+          example: 594.29
+        groupedBillingDate:
+          type: string
+          example: '2025-10-01'
+        currency:
+          type: string
+          example: 'EUR'
+        dateFrom:
+          type: string
+          example: '2025-10-01'
+        totalGroupedBilling:
+          type: number
+          format: double
+          example: 594.29
+        flagTpv:
+          type: string
+          example: '0'
+
+    GroupedBilling:
+      type: object
+      properties:
+        groupedBillingDate:
+          type: string
+          example: '2025-11-01'
+        groupedBilling:
+          type: number
+          format: double
+          example: 2617.22
+        currency:
+          type: string
+          example: 'EUR'
+
+    CommerceTpv:
+      type: object
+      properties:
+        personType:
+          type: string
+          example: 'F'
+        personCode:
+          type: string
+          example: '884407'
+        commerceCode:
+          type: string
+          example: '0038833422'
+        numTpv:
+          type: integer
+          format: int32
+          example: 1
+        numSerialTpv:
+          type: string
+          example: '1'
+        groupedBilling:
+          type: number
+          format: double
+          example: '534.54'
+        groupedBillingDate:
+          type: string
+          example: '2025-10-01'
+        currency:
+          type: string
+          example: 'EUR'
+        terminalEnvCode:
+          type: string
+        terminalEnvDesc:
+          type: string
+        terminalModel:
+          type: string
+        terminalModelDesc:
+          type: string
+        dateFrom:
+          type: string
+          example: '2025-10-01'
+        totalGroupedBilling:
+          type: number
+          format:  double
+          example: 534.54
+        dataDatePart:
+          type: string
+          example: '2025-10-01'
+
+    TpvOperation:
+      properties:
+        amountDiscounted:
+          type: number
+          format: double
+          example: 0.12
+        amountSubscribed:
+          type: number
+          format: double
+          example: 34.88
+        amountTotal:
+          type: number
+          format: double
+          example: 35.00,
+        refTNumOpe:
+          type: string
+          example: ' 000060'
+        returns:
+          type: integer
+          format: int32
+          example: 0
+        sales:
+          type: integer
+          format: int32
+          example: 22
+        totalDate:
+          type: string
+          example: '2025-10-24'
+        totalOrder:
+          type: integer
+          format: int32
+          example: 680444
+        totalTPV:
+          type: string
+          example: '1'
+        totalTime:
+          type: string
+          example: '20:30'
+        valueDate:
+          type: string
+          example: '2025-10-27'
+        cardType:
+          type: string
+          example: 'VISA'
+        currency:
+          type: string
+          example: 'EUR'
+
+    TpvTransaction:
+      properties:
+        cardBrand:
+          type: string
+          example: '10'
+        cardPan:
+          type: string
+          example: '***************1414'
+        cardTypeCode:
+          type: string
+          example: '00'
+        currency:
+          type: string
+          example: 'EUR'
+        dateOperation:
+          type: string
+          example: '2025-10-16'
+        numOperation:
+          type: string
+          example: '041000'
+        operationType:
+          type: string
+          example: 'VENTA'
+        saleImport:
+          type: number
+          format: double
+          example: 5.00
+        timeOperation:
+          type: string
+          example: '16:29'
+        totalOrder:
+          type: integer
+          format: int32
+          example: 662370
+
+
 paths:
 
   ###########################################################
@@ -200,12 +433,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  comercios:
-                    type: array
-                    items:
-                      type: object
+                 $ref: "#/components/schemas/CommercesResponse"
 
   ###########################################################
   ## 2. NUek Grouped Billing
@@ -254,12 +482,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  groupedBilling:
-                    type: array
-                    items:
-                      type: object
+                $ref: "#/components/schemas/GroupedBillingResponse"
 
   ###########################################################
   ## 3. NUek TPVs
@@ -326,12 +549,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  tpvs:
-                    type: array
-                    items:
-                      type: object
+                $ref: "#/components/schemas/CommerceTpvsResponse"
 
 
   ###########################################################
@@ -375,12 +593,8 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  operations:
-                    type: array
-                    items:
-                      type: object
+                $ref: "#/components/schemas/TpvOperationsResponse"
+
 
 
   ###########################################################
@@ -424,9 +638,4 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transactions:
-                    type: array
-                    items:
-                      type: object
+                $ref: "#/components/schemas/TpvTransactionsResponse"

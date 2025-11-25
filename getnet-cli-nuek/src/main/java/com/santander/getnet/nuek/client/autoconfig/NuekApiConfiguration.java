@@ -1,4 +1,4 @@
-package com.santander.getnet.external.client.example.autoconfig;
+package com.santander.getnet.nuek.client.autoconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -3,6 +3,8 @@ package com.santander.getnet.srv.merchant_portal.service.impl;
 import com.santander.getnet.nuek.client.model.api.NuekApi;
 import com.santander.getnet.nuek.client.model.data.*;
 import com.santander.getnet.srv.merchant_portal.dto.*;
+import com.santander.getnet.srv.merchant_portal.mapper.NuekApiMapper;
+import com.santander.getnet.srv.merchant_portal.service.NuekAuthService;
 import com.santander.getnet.srv.merchant_portal.service.NuekService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,19 +21,29 @@ public class NuekServiceImpl implements NuekService {
 
   private final NuekApi nuekClient;
 
-  public NuekServiceImpl(NuekApi nuekClient) {
+  private final NuekApiMapper nuekApiMapper;
+
+  private final NuekAuthService nuekAuthService;
+
+  public NuekServiceImpl(NuekApi nuekClient, NuekApiMapper nuekApiMapper, NuekAuthService nuekAuthService) {
+
     this.nuekClient = nuekClient;
+    this.nuekApiMapper = nuekApiMapper;
+    this.nuekAuthService = nuekAuthService;
   }
 
   @Override
   public CommercesDTO getCommerces(NuekRequestDTO metadata) {
 
-    return nuekClient.getComercios(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
+    final var httpHeaders = new HttpHeaders();
+    httpHeaders.put(HttpHeaders.AUTHORIZATION, List.of("Bearer" + nuekAuthService.getJWEToken4Commerces(metadata)));
+
+    return nuekClient.getComercios(httpHeaders, metadata.getPersonCode(), metadata.getPersonType(),
             metadata.getDateFrom(), metadata.getDateTo(), metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo())
         .blockOptional()
-        .map(GetComercios200Response::getComercios)
+        .map(CommercesResponse::getCommerceList)
         .map(items ->
-            toDTO(items, CommercesDTO.CommerceDTO.class, elems -> CommercesDTO.builder().commerces(elems).build()))
+            toDTO(items, nuekApiMapper::toCommerceDTO, commerces -> CommercesDTO.builder().commerces(commerces).build()))
         .orElse(null);
   }
 
@@ -40,22 +52,22 @@ public class NuekServiceImpl implements NuekService {
     return nuekClient.getComerciosGroupedBilling(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
             metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo())
         .blockOptional()
-        .map(GetComerciosGroupedBilling200Response::getGroupedBilling)
+        .map(GroupedBillingResponse::getCommerceGroupedBillingList)
         .map(items ->
-            toDTO(items, GroupedBillingDTO.BillingDTO.class, elems -> GroupedBillingDTO.builder().billings(elems).build()))
+            toDTO(items, nuekApiMapper::toGroupedBillingDTO, billings -> GroupedBillingDTO.builder().billings(billings).build()))
         .orElse(null);
   }
 
   @Override
-  public CommercesTpvsDTO getCommercesTpv(NuekRequestDTO metadata) {
+  public CommerceTpvsDTO getCommercesTpv(NuekRequestDTO metadata) {
 
     return nuekClient.getComercioTpvs(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
             metadata.getCommerceCode(), metadata.getDateFrom(), metadata.getDateTo(),
             metadata.getListDateFrom(), metadata.getListDateTo(), metadata.getOrder())
         .blockOptional()
-        .map(GetComercioTpvs200Response::getTpvs)
+        .map(CommerceTpvsResponse::getCommerceTPVs)
         .map(items ->
-            toDTO(items, CommercesTpvsDTO.TpvDTO.class, elems -> CommercesTpvsDTO.builder().tpvs(elems).build()))
+            toDTO(items, nuekApiMapper::toCommerceTpvDTO, elems -> CommerceTpvsDTO.builder().tpvs(elems).build()))
         .orElse(null);
   }
 
@@ -63,9 +75,9 @@ public class NuekServiceImpl implements NuekService {
   public OperationsTpvDTO getOperationsTpv(NuekRequestDTO metadata) {
     return nuekClient.getTpvOperations(new HttpHeaders(), metadata.getCommerceContract(), metadata.getOrder(), metadata.getDateFrom(), metadata.getDateTo())
         .blockOptional()
-        .map(GetTpvOperations200Response::getOperations)
+        .map(TpvOperationsResponse::getClearances)
         .map(items ->
-            toDTO(items, OperationsTpvDTO.OperationTpvDTO.class, elems -> OperationsTpvDTO.builder().operations(elems).build()))
+            toDTO(items, nuekApiMapper::toOperationTpvDTO, elems -> OperationsTpvDTO.builder().operations(elems).build()))
         .orElse(null);
   }
 
@@ -73,15 +85,15 @@ public class NuekServiceImpl implements NuekService {
   public TransactionsTpvDTO getTransactionsTpv(NuekRequestDTO metadata) {
     return nuekClient.getTpvTansactions(new HttpHeaders(), metadata.getCommerceContract(), metadata.getOrder(), metadata.getDateFrom(), metadata.getDateTo())
             .blockOptional()
-            .map(GetTpvTansactions200Response::getTransactions)
+            .map(TpvTransactionsResponse::getOperationClearances)
             .map(items ->
-                    toDTO(items, TransactionsTpvDTO.TransactionTpvDTO.class, elems -> TransactionsTpvDTO.builder().transactions(elems).build()))
+                    toDTO(items, nuekApiMapper::toTransactionTpvDTO, elems -> TransactionsTpvDTO.builder().transactions(elems).build()))
             .orElse(null);
   }
 
-  private <T, I, D> D toDTO(List<T> elems, Class<I> itemsClass, Function<List<I>, D> dtoBuilder) {
+  private <T, I, D> D toDTO(List<T> elems, Function<T, I> itemsTransform, Function<List<I>, D> dtoBuilder) {
     var items = elems.stream()
-        .map(itemsClass::cast)
+        .map(itemsTransform)
         .toList();
     return dtoBuilder.apply(items);
   }

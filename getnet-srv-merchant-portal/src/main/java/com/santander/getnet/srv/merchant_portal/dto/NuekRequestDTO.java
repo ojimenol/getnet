@@ -12,6 +12,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class NuekRequestDTO {
 
+  private String requestId;
   private String personCode;
   private String personType;
   private String commerceCode;

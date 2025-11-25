@@ -19,6 +19,15 @@ public class TransactionsTpvDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class TransactionTpvDTO {
-        private String name;
+        private String cardBrand;
+        private String cardPan;
+        private String cardTypeCode;
+        private String currency;
+        private String dateOperation;
+        private String numOperation;
+        private String operationType;
+        private Double saleImport;
+        private String timeOperation;
+        private Integer totalOrder;
     }
 }

@@ -57,7 +57,7 @@ class MerchantPortalControllerImplTest {
     final var result = webClient
         .get()
         .uri(uriBuilder -> uriBuilder
-            .path("/commerces/{requestId}/{personCode}/{personType}/{order}")
+            .path("/commerces/{requestId}")
             .build(inParams))
         .accept(MediaType.APPLICATION_JSON)
         .header("x-sub-id", "id")

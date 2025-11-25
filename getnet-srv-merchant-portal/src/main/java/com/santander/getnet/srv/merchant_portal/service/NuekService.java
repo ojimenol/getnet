@@ -8,7 +8,7 @@ public interface NuekService {
 
   GroupedBillingDTO getGroupedBilling(NuekRequestDTO metadata);
 
-  CommercesTpvsDTO getCommercesTpv(NuekRequestDTO metadata);
+  CommerceTpvsDTO getCommercesTpv(NuekRequestDTO metadata);
 
   OperationsTpvDTO getOperationsTpv(NuekRequestDTO metadata);
 

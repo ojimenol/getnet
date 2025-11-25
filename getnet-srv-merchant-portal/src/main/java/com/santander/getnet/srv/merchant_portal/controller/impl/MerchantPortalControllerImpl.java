@@ -14,54 +14,54 @@ import org.springframework.web.server.ServerWebInputException;
 @RequiredArgsConstructor
 public class MerchantPortalControllerImpl implements MerchantPortalController {
 
-  private static final String HDR_X_CLIENT_ID = "x-sub-id";
-
   private final NuekService nuekService;
 
   private final MerchantPortalControllerErrorHandler errorHandler;
 
   @Override
-  @GetMapping("/commerces/{requestId}/{personCode}/{personType}/{order}")
-  public ResponseEntity<CommercesDTO> getCommerces(
-      @PathVariable("requestId") String requestId,
-      @PathVariable("personCode") String personCode,
-      @PathVariable("personType") String personType,
-      @PathVariable("order") String order) {
+  @GetMapping("/commerces/{requestId}")
+  public ResponseEntity<CommercesDTO> getCommerces(@PathVariable("requestId") String requestId) {
 
-      var metadata = NuekRequestDTO.builder()
-          .personCode(personCode)
-          .personType(personType)
-          .order(order)
+      var request = NuekRequestDTO.builder()
+          .requestId(requestId)
+          .personCode("884407")
+          .personType("F")
+          .dateFrom("20250501")
+          .dateTo("20251024")
+          .listDateFrom("20251001")
+          .listDateTo("20251031")
+          .order("D")
           .build();
 
-      return ResponseEntity.ok(nuekService.getCommerces(metadata));
+      return ResponseEntity.ok(nuekService.getCommerces(request));
   }
 
   @Override
   @GetMapping("/groupedBilling/{requestId}")
-  public ResponseEntity<GroupedBillingDTO> getGroupedBilling(
-      @RequestHeader(HDR_X_CLIENT_ID) String xClientId,
-      @PathVariable("requestId") String requestId) {
+  public ResponseEntity<GroupedBillingDTO> getGroupedBilling(@PathVariable("requestId") String requestId) {
 
     return ResponseEntity.ok(nuekService.getGroupedBilling(null));
   }
 
   @Override
-  @GetMapping("/commerces/tpv/{requestId}")
-  public ResponseEntity<CommercesTpvsDTO> getTpvsCommerce(
-      @RequestHeader(HDR_X_CLIENT_ID) String xClientId,
-      @PathVariable("requestId") String requestId) {
+  @GetMapping("/commerce/tpv/{requestId}")
+  public ResponseEntity<CommerceTpvsDTO> getTpvsCommerce(@PathVariable("requestId") String requestId) {
 
     return ResponseEntity.ok(nuekService.getCommercesTpv(null));
   }
 
   @Override
-  @GetMapping("/operations/tpv/{requestId}/")
-  public ResponseEntity<OperationsTpvDTO> getTpvOperations(
-      @RequestHeader(HDR_X_CLIENT_ID) String xClientId,
-      @PathVariable("requestId") String requestId) {
+  @GetMapping("/tpv/operations/{requestId}")
+  public ResponseEntity<OperationsTpvDTO> getTpvOperations(@PathVariable("requestId") String requestId) {
 
     return ResponseEntity.ok(nuekService.getOperationsTpv(null));
+  }
+
+  @Override
+  @GetMapping("/tpv/transactions/{requestId}")
+  public ResponseEntity<TransactionsTpvDTO> getTpvTransactions(@PathVariable("requestId") String requestId) {
+
+    return ResponseEntity.ok(nuekService.getTransactionsTpv(null));
   }
 
   @ExceptionHandler(value = {Exception.class})
