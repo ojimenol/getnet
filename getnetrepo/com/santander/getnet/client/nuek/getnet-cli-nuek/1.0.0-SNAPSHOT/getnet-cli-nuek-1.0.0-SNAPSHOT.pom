@@ -4,7 +4,7 @@
   <parent>
     <artifactId>getnet-lib-openapi-parent</artifactId>
     <groupId>com.santander.getnet.lib</groupId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
   </parent>
 
   <groupId>com.santander.getnet.client.nuek</groupId>
