@@ -345,7 +345,7 @@ public class ApiClient{{#jsr310}} extends JavaTimeFormatter{{/jsr310}} implement
      * @return ApiClient this client
      */
     public ApiClient addDefaultHeader(String name, String value) {
-        if (defaultHeaders.containsKey(name)) {
+        if (defaultHeaders.containsHeader(name)) {
             defaultHeaders.remove(name);
         }
         defaultHeaders.add(name, value);
@@ -664,7 +664,7 @@ public class ApiClient{{#jsr310}} extends JavaTimeFormatter{{/jsr310}} implement
         MediaType contentType, String[] authNames) {
         updateParamsForAuth(authNames, queryParams, headerParams, cookieParams);
 
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(basePath).path(path);
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(basePath).path(path);
 
         String finalUri = builder.build(false).toUriString();
         Map<String, Object> uriParams = new HashMap<>();
@@ -703,7 +703,7 @@ public class ApiClient{{#jsr310}} extends JavaTimeFormatter{{/jsr310}} implement
      * @param requestBuilder The current request
      */
     protected void addHeadersToRequest(HttpHeaders headers, WebClient.RequestBodySpec requestBuilder) {
-        for (Entry<String, List<String>> entry : headers.entrySet()) {
+        for (Entry<String, List<String>> entry : headers.headerNames()) {
             List<String> values = entry.getValue();
             for(String value : values) {
                 if (value != null) {
