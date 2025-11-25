@@ -5,7 +5,7 @@
     <parent>
         <artifactId>getnet-lib-openapi-parent</artifactId>
         <groupId>com.santander.getnet.lib</groupId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <name>getnet-lib-openapi-library</name>

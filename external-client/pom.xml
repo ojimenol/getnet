@@ -10,7 +10,7 @@
     </parent>
     <properties>
         <jackson-databind.version>2.14.1</jackson-databind.version>
-        <openapi-generator-maven-plugin.version>6.5.0</openapi-generator-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>7.10.0</openapi-generator-maven-plugin.version>
         <jackson-datatype-jsr310.version>2.14.1</jackson-datatype-jsr310.version>
         <spring-webflux.version>6.0.0</spring-webflux.version>
         <swagger-annotations.version>1.6.9</swagger-annotations.version>
@@ -22,7 +22,7 @@
     <name>getnet-lib-openapi-parent</name>
     <groupId>com.santander.getnet.lib</groupId>
     <artifactId>getnet-lib-openapi-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>pom</packaging>
     <build>
         <plugins>
