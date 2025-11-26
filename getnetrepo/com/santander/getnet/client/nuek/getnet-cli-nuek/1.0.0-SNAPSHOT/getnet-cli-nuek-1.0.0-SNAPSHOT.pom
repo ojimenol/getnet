@@ -4,7 +4,7 @@
   <parent>
     <artifactId>getnet-lib-openapi-parent</artifactId>
     <groupId>com.santander.getnet.lib</groupId>
-    <version>1.0.1</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>com.santander.getnet.client.nuek</groupId>
@@ -15,6 +15,7 @@
 
   <properties>
     <java.version>17</java.version>
+    <openapi-parent.version>1.0.0-SNAPSHOT</openapi-parent.version>
   </properties>
 
   <dependencies>
@@ -47,7 +48,7 @@
     <dependency>
       <groupId>com.santander.getnet.lib</groupId>
       <artifactId>getnet-lib-openapi-starter</artifactId>
-      <version>${project.parent.version}</version>
+      <version>${openapi-parent.version}</version>
     </dependency>
 
     <dependency>
@@ -75,7 +76,7 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <inputSpec>${project.basedir}/src/main/resources/api/api-definition-0.0.1.yml</inputSpec>
+              <inputSpec>${project.basedir}/src/main/resources/api/api-definition-1.0.0.yml</inputSpec>
               <generatorName>java</generatorName>
               <modelPackage>com.santander.getnet.nuek.client.model.data</modelPackage>
               <apiPackage>com.santander.getnet.nuek.client.model.api</apiPackage>
@@ -86,7 +87,8 @@
               <generateApiTests>false</generateApiTests>
               <generateSupportingFiles>true</generateSupportingFiles>
               <configOptions>
-                <dateLibrary>java8</dateLibrary>
+                <java17>true</java17>
+                <dateLibrary>java17</dateLibrary>
                 <serializationLibrary>jackson</serializationLibrary>
                 <useRuntimeException>true</useRuntimeException>
                 <asyncNative>true</asyncNative>
