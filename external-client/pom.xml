@@ -6,17 +6,17 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.5</version>
+        <version>4.0.0-M3</version>
     </parent>
     <properties>
         <jackson-databind.version>2.20.0</jackson-databind.version>
         <openapi-generator-maven-plugin.version>7.10.0</openapi-generator-maven-plugin.version>
-        <jackson-datatype-jsr310.version>2.14.1</jackson-datatype-jsr310.version>
+        <jackson-datatype-jsr310.version>2.20.1</jackson-datatype-jsr310.version>
         <spring-webflux.version>7.0.0</spring-webflux.version>
         <swagger-annotations.version>1.6.9</swagger-annotations.version>
         <jackson-databind-nullable.version>0.2.4</jackson-databind-nullable.version>
         <spring-boot.version>4.0.0-M3</spring-boot.version>
-        <reactor-test.version>3.5.1</reactor-test.version>
+        <reactor-test.version>3.8.0</reactor-test.version>
     </properties>
     <modelVersion>4.0.0</modelVersion>
     <name>getnet-lib-openapi-parent</name>
