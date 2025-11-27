@@ -15,5 +15,7 @@ spring:
 
 getnet:
   client:
+    nuek-auth:
+      url: https://srvnuarintra.santander.pru.bsch
     nuek:
-      url: http://localhost:8082
+      url: https://repgtnprep.minsaitpaymentsprocessing.com

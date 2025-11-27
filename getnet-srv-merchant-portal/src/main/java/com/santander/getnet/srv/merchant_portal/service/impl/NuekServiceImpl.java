@@ -4,20 +4,23 @@ import com.santander.getnet.nuek.client.model.api.NuekApi;
 import com.santander.getnet.nuek.client.model.data.*;
 import com.santander.getnet.srv.merchant_portal.dto.*;
 import com.santander.getnet.srv.merchant_portal.mapper.NuekApiMapper;
+import com.santander.getnet.srv.merchant_portal.model.JWEToken;
 import com.santander.getnet.srv.merchant_portal.service.NuekAuthService;
 import com.santander.getnet.srv.merchant_portal.service.NuekService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
 public class NuekServiceImpl implements NuekService {
 
-  private static final Logger log = LoggerFactory.getLogger(NuekServiceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NuekServiceImpl.class);
 
   private final NuekApi nuekClient;
 
@@ -35,11 +38,15 @@ public class NuekServiceImpl implements NuekService {
   @Override
   public CommercesDTO getCommerces(NuekRequestDTO metadata) {
 
-    final var httpHeaders = new HttpHeaders();
-    httpHeaders.put(HttpHeaders.AUTHORIZATION, List.of("Bearer" + nuekAuthService.getJWEToken4Commerces(metadata)));
+    var mockCommercesResponse = new CommercesResponse().commerceList(List.of(
+            new Commerce().commerceCode("11").commerceContract("123").commerceName("mockCommerce")));
 
-    return nuekClient.getComercios(httpHeaders, metadata.getPersonCode(), metadata.getPersonType(),
-            metadata.getDateFrom(), metadata.getDateTo(), metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo())
+    return Mono.just(metadata)
+        .map(req -> buildHttpHeadersWithAuthHeader(req, nuekAuthService::getJWEToken4Commerces))
+        .flatMap(headers -> nuekClient.getComercios(headers, metadata.getPersonCode(), metadata.getPersonType(),
+            metadata.getDateFrom(), metadata.getDateTo(), metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo()))
+        .doOnError(th -> LOG.error("Error calling NUEK endpoint: /api/Comercios/commerces. Error : {}", th.getMessage()))
+        .onErrorReturn(mockCommercesResponse)
         .blockOptional()
         .map(CommercesResponse::getCommerceList)
         .map(items ->
@@ -49,46 +56,94 @@ public class NuekServiceImpl implements NuekService {
 
   @Override
   public GroupedBillingDTO getGroupedBilling(NuekRequestDTO metadata) {
-    return nuekClient.getComerciosGroupedBilling(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
-            metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo())
+    var mockGroupedBillingResponse = new GroupedBillingResponse().commerceGroupedBillingList(
+            List.of(new GroupedBilling().groupedBilling(123.45).groupedBillingDate("20251010").currency("EUR")));
+
+    return Mono.just(metadata)
+        .map(req -> buildHttpHeadersWithAuthHeader(req, nuekAuthService::getJWEToken4GroupedBilling))
+        .flatMap(headers -> nuekClient.getComerciosGroupedBilling(headers, metadata.getPersonCode(), metadata.getPersonType(),
+                metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo()))
+        .doOnError(th -> LOG.error("Error calling NUEK endpoint: /api/Comercios/groupedbilling. Error : {}", th.getMessage()))
+        .onErrorReturn(mockGroupedBillingResponse)
         .blockOptional()
         .map(GroupedBillingResponse::getCommerceGroupedBillingList)
         .map(items ->
-            toDTO(items, nuekApiMapper::toGroupedBillingDTO, billings -> GroupedBillingDTO.builder().billings(billings).build()))
+                toDTO(items, nuekApiMapper::toGroupedBillingDTO, billings -> GroupedBillingDTO.builder().billings(billings).build()))
         .orElse(null);
   }
 
   @Override
   public CommerceTpvsDTO getCommercesTpv(NuekRequestDTO metadata) {
 
-    return nuekClient.getComercioTpvs(new HttpHeaders(), metadata.getPersonCode(), metadata.getPersonType(),
-            metadata.getCommerceCode(), metadata.getDateFrom(), metadata.getDateTo(),
-            metadata.getListDateFrom(), metadata.getListDateTo(), metadata.getOrder())
+    var mockCommerceTpvsResponse = new CommerceTpvsResponse().commerceTPVs(
+        List.of(new CommerceTpv().commerceCode("11").groupedBilling(123.45).groupedBillingDate("20251011").currency("EUR")));
+
+    return Mono.just(metadata)
+        .map(req -> buildHttpHeadersWithAuthHeader(req, nuekAuthService::getJWEToken4CommerceTpvs))
+        .flatMap(headers -> nuekClient.getComercioTpvs(headers, metadata.getPersonCode(), metadata.getPersonType(),
+                metadata.getCommerceCode(), metadata.getDateFrom(), metadata.getDateTo(),
+                metadata.getListDateFrom(), metadata.getListDateTo(), metadata.getOrder()))
+        .doOnError(th -> LOG.error("Error calling NUEK endpoint: /api/Comercio/tpvs. Error : {}", th.getMessage()))
+        .onErrorReturn(mockCommerceTpvsResponse)
         .blockOptional()
         .map(CommerceTpvsResponse::getCommerceTPVs)
         .map(items ->
-            toDTO(items, nuekApiMapper::toCommerceTpvDTO, elems -> CommerceTpvsDTO.builder().tpvs(elems).build()))
+                toDTO(items, nuekApiMapper::toCommerceTpvDTO, tpvs -> CommerceTpvsDTO.builder().tpvs(tpvs).build()))
         .orElse(null);
   }
 
   @Override
   public OperationsTpvDTO getOperationsTpv(NuekRequestDTO metadata) {
-    return nuekClient.getTpvOperations(new HttpHeaders(), metadata.getCommerceContract(), metadata.getOrder(), metadata.getDateFrom(), metadata.getDateTo())
+    var mockOperationsTpvsResponse = new TpvOperationsResponse()
+        .numOperations(1)
+        .clearances(
+            List.of(new TpvOperation().cardType("VISA").amountDiscounted(123.45).amountSubscribed(234.56).amountTotal(358.01).currency("EUR")));
+
+    return Mono.just(metadata)
+        .map(req -> buildHttpHeadersWithAuthHeader(req, nuekAuthService::getJWEToken4TpvOperations))
+        .flatMap(headers ->
+            nuekClient.getTpvOperations(headers, metadata.getCommerceContract(), metadata.getOrder(),
+                metadata.getDateFrom(), metadata.getDateTo()))
+        .doOnError(th -> LOG.error("Error calling NUEK endpoint: /api/TPV/tpv_clearance. Error : {}", th.getMessage()))
+        .onErrorReturn(mockOperationsTpvsResponse)
         .blockOptional()
         .map(TpvOperationsResponse::getClearances)
         .map(items ->
-            toDTO(items, nuekApiMapper::toOperationTpvDTO, elems -> OperationsTpvDTO.builder().operations(elems).build()))
+                toDTO(items, nuekApiMapper::toOperationTpvDTO, ops -> OperationsTpvDTO.builder().operations(ops).build()))
         .orElse(null);
   }
 
   @Override
   public TransactionsTpvDTO getTransactionsTpv(NuekRequestDTO metadata) {
-    return nuekClient.getTpvTansactions(new HttpHeaders(), metadata.getCommerceContract(), metadata.getOrder(), metadata.getDateFrom(), metadata.getDateTo())
+    var mockTransactionsTpvsResponse = new TpvTransactionsResponse()
+        .operationClearances(
+            List.of(new TpvTransaction().numOperation("000001").dateOperation("20251025").cardBrand("VISA").totalOrder(54).currency("EUR")));
+
+    return Mono.just(metadata)
+            .map(req -> buildHttpHeadersWithAuthHeader(req, nuekAuthService::getJWEToken4TpvTransactions))
+            .flatMap(headers -> nuekClient.getTpvTansactions(headers, metadata.getCommerceContract(), metadata.getProperties().get("valueDate").toString(),
+                    metadata.getProperties().get("totalDate").toString(), metadata.getProperties().get("totalOrder").toString()))
+            .doOnError(th -> LOG.error("Error calling NUEK endpoint: api/CierreCaja/clearance_operations. Error : {}", th.getMessage()))
+            .onErrorReturn(mockTransactionsTpvsResponse)
             .blockOptional()
             .map(TpvTransactionsResponse::getOperationClearances)
             .map(items ->
-                    toDTO(items, nuekApiMapper::toTransactionTpvDTO, elems -> TransactionsTpvDTO.builder().transactions(elems).build()))
+                    toDTO(items, nuekApiMapper::toTransactionTpvDTO, tx -> TransactionsTpvDTO.builder().transactions(tx).build()))
             .orElse(null);
+  }
+
+  private HttpHeaders buildHttpHeadersWithAuthHeader(NuekRequestDTO request, Function<NuekRequestDTO, JWEToken> jweGetter) {
+
+    final var httpHeaders = new HttpHeaders();
+
+    Optional.of(request)
+            .map(jweGetter)
+            .map(JWEToken::getJwe)
+            .map(jwe -> "Bearer " + jwe)
+            .map(List::of)
+            .ifPresent(values -> httpHeaders.put(HttpHeaders.AUTHORIZATION, values));
+
+    return httpHeaders;
   }
 
   private <T, I, D> D toDTO(List<T> elems, Function<T, I> itemsTransform, Function<List<I>, D> dtoBuilder) {

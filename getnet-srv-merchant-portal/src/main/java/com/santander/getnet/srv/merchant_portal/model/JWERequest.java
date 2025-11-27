@@ -7,6 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class JWERequest {
     private String keyalias;
     private int expiration;
@@ -17,6 +18,7 @@ public class JWERequest {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class JWEPayloadRequest {
         private String billingDateFrom;
         private String billingDateTo;

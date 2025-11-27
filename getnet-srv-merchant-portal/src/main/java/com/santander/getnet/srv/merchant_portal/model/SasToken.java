@@ -3,27 +3,26 @@ package com.santander.getnet.srv.merchant_portal.model;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.Date;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SasToken {
+public class SasToken implements AuthToken {
 
     private String tokenCorp;
     private String cookieCorp;
     private String jwt;
-    private Instant timestamp;
-    private int expiration;
+    private Date expirationDate;
 
-    public SasToken init() {
-        timestamp = Instant.now();
+    public SasToken expirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
         return this;
     }
 
-    public SasToken expiration(int expiration) {
-        expiration = expiration;
-        return this;
+    public boolean isExpired() {
+        return Instant.ofEpochMilli(expirationDate.getTime()).isBefore(Instant.now());
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ServerWebInputException;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 public class MerchantPortalControllerImpl implements MerchantPortalController {
@@ -40,28 +42,61 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
   @GetMapping("/groupedBilling/{requestId}")
   public ResponseEntity<GroupedBillingDTO> getGroupedBilling(@PathVariable("requestId") String requestId) {
 
-    return ResponseEntity.ok(nuekService.getGroupedBilling(null));
+    var request = NuekRequestDTO.builder()
+            .requestId(requestId)
+            .personCode("884407")
+            .personType("F")
+            .listDateFrom("20251001")
+            .listDateTo("20251031")
+            .order("D")
+            .build();
+
+    return ResponseEntity.ok(nuekService.getGroupedBilling(request));
   }
 
   @Override
   @GetMapping("/commerce/tpv/{requestId}")
   public ResponseEntity<CommerceTpvsDTO> getTpvsCommerce(@PathVariable("requestId") String requestId) {
 
-    return ResponseEntity.ok(nuekService.getCommercesTpv(null));
+    var request = NuekRequestDTO.builder()
+            .requestId(requestId)
+            .personCode("884407")
+            .personType("F")
+            .commerceCode("0038833422")
+            .dateFrom("20250501")
+            .dateTo("20251024")
+            .listDateFrom("20251001")
+            .listDateTo("20251031")
+            .order("D")
+            .build();
+
+    return ResponseEntity.ok(nuekService.getCommercesTpv(request));
   }
 
   @Override
   @GetMapping("/tpv/operations/{requestId}")
   public ResponseEntity<OperationsTpvDTO> getTpvOperations(@PathVariable("requestId") String requestId) {
 
-    return ResponseEntity.ok(nuekService.getOperationsTpv(null));
+      var request = NuekRequestDTO.builder()
+            .commerceContract("004918125240196905")
+            .dateFrom("20251001")
+            .dateTo("20251024")
+            .order("D")
+            .build();
+
+      return ResponseEntity.ok(nuekService.getOperationsTpv(request));
   }
 
   @Override
   @GetMapping("/tpv/transactions/{requestId}")
   public ResponseEntity<TransactionsTpvDTO> getTpvTransactions(@PathVariable("requestId") String requestId) {
 
-    return ResponseEntity.ok(nuekService.getTransactionsTpv(null));
+    var request = NuekRequestDTO.builder()
+            .commerceContract("004918125240196905")
+            .properties(Map.of("valueDate", "20251017", "totalDate", "20251016", "totalOrder", "662530"))
+            .build();
+
+    return ResponseEntity.ok(nuekService.getTransactionsTpv(request));
   }
 
   @ExceptionHandler(value = {Exception.class})

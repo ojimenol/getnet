@@ -8,7 +8,13 @@ public interface NuekAuthService {
 
     SasToken getSasToken(String id, String pwd, String realm);
 
+    JWEToken getJWEToken4GroupedBilling(NuekRequestDTO request);
+
     JWEToken getJWEToken4Commerces(NuekRequestDTO request);
 
-    JWEToken getJWEToken4CommerceTpvs();
+    JWEToken getJWEToken4CommerceTpvs(NuekRequestDTO request);
+
+    JWEToken getJWEToken4TpvOperations(NuekRequestDTO requestDTO);
+
+    JWEToken getJWEToken4TpvTransactions(NuekRequestDTO requestDTO);
 }
