@@ -43,14 +43,18 @@ public class NuekServiceImpl implements NuekService {
 
     return Mono.just(metadata)
         .map(req -> buildHttpHeadersWithAuthHeader(req, nuekAuthService::getJWEToken4Commerces))
-        .flatMap(headers -> nuekClient.getComercios(headers, metadata.getPersonCode(), metadata.getPersonType(),
-            metadata.getDateFrom(), metadata.getDateTo(), metadata.getOrder(), metadata.getListDateFrom(), metadata.getListDateTo()))
-        .doOnError(th -> LOG.error("Error calling NUEK endpoint: /api/Comercios/commerces. Error : {}", th.getMessage()))
+        .flatMap(headers ->
+            nuekClient.getComercios(headers, metadata.getPersonCode(), metadata.getPersonType(),
+                metadata.getDateFrom(), metadata.getDateTo(), metadata.getOrder(),
+                metadata.getListDateFrom(), metadata.getListDateTo()))
+        .doOnError(th ->
+           LOG.error("Error calling NUEK endpoint: /api/Comercios/commerces. Error : {}", th.getMessage()))
         .onErrorReturn(mockCommercesResponse)
         .blockOptional()
         .map(CommercesResponse::getCommerceList)
         .map(items ->
-            toDTO(items, nuekApiMapper::toCommerceDTO, commerces -> CommercesDTO.builder().commerces(commerces).build()))
+            toDTO(items, nuekApiMapper::toCommerceDTO,
+                commerces -> CommercesDTO.builder().commerces(commerces).build()))
         .orElse(null);
   }
 

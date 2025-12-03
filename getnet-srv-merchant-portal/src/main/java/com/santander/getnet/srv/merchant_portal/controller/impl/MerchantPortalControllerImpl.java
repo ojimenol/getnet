@@ -21,7 +21,7 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
   private final MerchantPortalControllerErrorHandler errorHandler;
 
   @Override
-  @GetMapping("/commerces/{requestId}")
+  @GetMapping("/v2/commerces/{requestId}")
   public ResponseEntity<CommercesDTO> getCommerces(@PathVariable("requestId") String requestId) {
 
       var request = NuekRequestDTO.builder()
@@ -39,7 +39,7 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
   }
 
   @Override
-  @GetMapping("/groupedBilling/{requestId}")
+  @GetMapping("/v2/groupedBilling/{requestId}")
   public ResponseEntity<GroupedBillingDTO> getGroupedBilling(@PathVariable("requestId") String requestId) {
 
     var request = NuekRequestDTO.builder()
@@ -55,7 +55,7 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
   }
 
   @Override
-  @GetMapping("/commerce/tpv/{requestId}")
+  @GetMapping("/v2/commerce/tpv/{requestId}")
   public ResponseEntity<CommerceTpvsDTO> getTpvsCommerce(@PathVariable("requestId") String requestId) {
 
     var request = NuekRequestDTO.builder()
@@ -74,7 +74,7 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
   }
 
   @Override
-  @GetMapping("/tpv/operations/{requestId}")
+  @GetMapping("/v2/tpv/operations/{requestId}")
   public ResponseEntity<OperationsTpvDTO> getTpvOperations(@PathVariable("requestId") String requestId) {
 
       var request = NuekRequestDTO.builder()
@@ -88,7 +88,7 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
   }
 
   @Override
-  @GetMapping("/tpv/transactions/{requestId}")
+  @GetMapping("/v2/tpv/transactions/{requestId}")
   public ResponseEntity<TransactionsTpvDTO> getTpvTransactions(@PathVariable("requestId") String requestId) {
 
     var request = NuekRequestDTO.builder()

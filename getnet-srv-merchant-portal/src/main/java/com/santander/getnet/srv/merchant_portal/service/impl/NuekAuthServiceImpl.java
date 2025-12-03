@@ -161,7 +161,6 @@ public class NuekAuthServiceImpl implements NuekAuthService {
             LOG.info("Returning reused JWE for " + tokenKey);
             return tokenService.getToken(tokenKey, JWEToken.class);
         }
-
         LOG.info("Calling cos to get JWE");
 
         final var httpHeaders = new HttpHeaders();
