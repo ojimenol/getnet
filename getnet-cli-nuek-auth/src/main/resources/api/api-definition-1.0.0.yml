@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  title: Nuek Auth API
+  version: "1.0.0"
+
+servers:
+  - url: https://srvnuarintra.santander.pru.bsch
+  - url: https://repgtnprep.minsaitpaymentsprocessing.com
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    CredentialsRequest:
+      type: object
+      properties:
+        idAttributes:
+          type: object
+          properties:
+            uid:
+              type: string
+        password:
+          type: string
+        realm:
+          type: string
+      required: [idAttributes, password, realm]
+
+    JWEGenerateRequest:
+      type: object
+      properties:
+        keyalias:
+          type: string
+        expiration:
+          type: string
+        payload:
+          type: object
+          properties:
+            personCode:
+              type: string
+              example: '884407'
+            personType:
+              type: string
+              example: 'F'
+            billingDateFrom:
+              type: string
+              example: '20250501'
+            billingDateTo:
+              type: string
+              example: '20251024'
+            listDateFrom:
+              type: string
+              example: '20251001'
+            listDateTo:
+              type: string
+              example: '20251031'
+            order:
+              type: string
+              example: 'D'
+            commerceCode:
+              type: string
+              example: '0038833422'
+            commerceContract:
+              type: string
+              example: '884407'
+            dateFrom:
+              type: string
+              example: '20251001'
+            dateTo:
+              type: string
+              example: '20251031'
+            valueDate:
+              type: string
+              example: '20251001'
+            totalDate:
+              type: string
+              example: '20251031'
+            totalOrder:
+              type: string
+              example: '662530'
+      required: [ keyalias, expiration, payload ]
+
+paths:
+
+  ###########################################################
+  ## SAS CREDENTIALS / TOKEN LOGIN
+  ###########################################################
+  /sas/authenticate/credentials:
+    post:
+      operationId: postGenerateSASTokens
+      summary: Get SAS Credentials Token (JWT & tokenCorp)
+      tags: [Nuek-Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CredentialsRequest"
+      responses:
+        "200":
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokenCorp:
+                    type: string
+                  cookieCorp:
+                    type: string
+                  jwt:
+                    type: string
+
+  ###########################################################
+  ## GENERATE JWE TOKENS
+  ###########################################################
+  /cos/jwe/scos/generate:
+    post:
+      operationId: postJWEGenerateToken
+      summary: Generate JWE Token
+      tags: [Nuek-Auth]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JWEGenerateRequest"
+      responses:
+        "200":
+          description: JWE token returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwe:
+                    type: string
