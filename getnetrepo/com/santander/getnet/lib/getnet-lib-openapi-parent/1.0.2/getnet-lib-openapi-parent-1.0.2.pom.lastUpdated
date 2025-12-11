@@ -1,0 +1,6 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Tue Dec 02 09:55:18 CET 2025
+@default-nexus-master-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.lastUpdated=1764665717180
+https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.error=Could not transfer artifact com.santander.getnet.lib\:getnet-lib-openapi-parent\:pom\:1.0.2 from/to nexus-master (https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central)\: PKIX path building failed\: sun.security.provider.certpath.SunCertPathBuilderException\: unable to find valid certification path to requested target
+https\://repo.maven.apache.org/maven2/.error=
+https\://repo.maven.apache.org/maven2/.lastUpdated=1764665718006

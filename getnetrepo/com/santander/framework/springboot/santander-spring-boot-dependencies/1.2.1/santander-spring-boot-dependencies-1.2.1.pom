@@ -1,0 +1,961 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.6</version>
+        <relativePath></relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.santander.framework.springboot</groupId>
+    <artifactId>santander-spring-boot-dependencies</artifactId>
+    <packaging>pom</packaging>
+    <version>1.2.1</version>
+
+    <name>Santander Spring Boot Dependencies</name>
+    <description>Santander Spring Boot Dependencies</description>
+
+    <url>https://gluon.dev.corp/microservices/docs/santander-spring-boot/</url>
+
+    <organization>
+        <name>Santander Technology</name>
+        <url>https://www.bancosantander.es/</url>
+    </organization>
+
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!--Spring Boot & Spring Cloud-->
+        <spring-boot.version>3.5.6</spring-boot.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
+
+        <!-- Santander Java Library -->
+        <santander.java.library.version>1.0.0</santander.java.library.version>
+
+        <!-- Spring Cloud deployer for batch module -->
+        <!-- we need also define kubernets-client and okhttp version -->
+        <!-- review it if we upgrade spring-cloud-deployer version -->
+        <spring-cloud-deployer.version>2.9.5</spring-cloud-deployer.version>
+        <kubernetes-client-bom.version>5.12.4</kubernetes-client-bom.version>
+        <okhttp.version>4.12.0</okhttp.version>
+
+        <!-- Apache Camel version -->
+        <apache-camel.version>4.8.8</apache-camel.version>
+
+        <!-- Dependency versions for Darwin -->
+        <blockhound.version>1.0.13.RELEASE</blockhound.version>
+        <cloudevents.version>3.0.0</cloudevents.version>
+        <confluent.version>7.9.2</confluent.version>
+        <com.google.code.findbug.jsr305.version>3.0.2</com.google.code.findbug.jsr305.version>
+        <com-lmax-disruptor.version>4.0.0</com-lmax-disruptor.version>
+        <commons-io.version>2.20.0</commons-io.version> <!-- requires a minimum of Java 8 -->
+        <commons-text.version>1.14.0</commons-text.version>
+        <commons-beanutils.version>1.11.0</commons-beanutils.version>
+        <infinispan.version>15.0.19.Final-redhat-00001</infinispan.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <micrometer-context-propagation.version>1.1.3</micrometer-context-propagation.version>
+        <batch-integration.version>1.0.1-RELEASE</batch-integration.version>
+        <!-- Lombok binding version for MapStruct AnnotationProcessor -->
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <org.owasp.encoder.version>1.3.1</org.owasp.encoder.version>
+
+        <resilience4j.version>2.3.0</resilience4j.version>
+        <springdoc-openapi.version>2.8.13</springdoc-openapi.version>
+        <swagger-annotations.version>2.2.36</swagger-annotations.version>
+        <!-- Review when we have to update to wss4j-ws-security-dom.version 4.0.0 -->
+        <wss4j-ws-security-dom.version>3.0.4</wss4j-ws-security-dom.version>
+        <yauaa.version>7.31.0</yauaa.version>
+
+        <!-- Bouncy Castle. Using by wss4j-ws-security-common 3.0.3. Update from 1.76-->
+        <org.bouncycastle.bcprov-jdk18on.version>1.81</org.bouncycastle.bcprov-jdk18on.version>
+
+        <!-- Partenon, Sat & MDS -->
+        <partenon-spring-boot-starter.version>2.2.2</partenon-spring-boot-starter.version>
+        <partenon-sat-spring-boot-starter.version>2.1.1</partenon-sat-spring-boot-starter.version>
+        <mds-dualrun-lib.version>1.3.7</mds-dualrun-lib.version>
+
+        <!-- Plugins -->
+        <arsenal-backend.version>3.12.0</arsenal-backend.version>
+        <partenon-maven-plugin.version>3.0.0</partenon-maven-plugin.version>
+        <santander-code-analysis-plugin.version>1.0.2</santander-code-analysis-plugin.version>
+        <santander-code-analysis-library-rules.version>${santander-code-analysis-plugin.version}</santander-code-analysis-library-rules.version>
+        <santander-code-analysis-microservice-rules.version>${santander-code-analysis-plugin.version}</santander-code-analysis-microservice-rules.version>
+
+        <!-- Cache -->
+        <cache.api.version>1.1.1</cache.api.version>
+        <ehcache.version>3.10.8</ehcache.version>
+
+        <!-- Telemetry -->
+        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
+        <santander-dynatrace-otl.version>2.4.2</santander-dynatrace-otl.version>
+        <logback-core.version>1.5.18</logback-core.version>
+        <logback-classic.version>1.5.18</logback-classic.version>
+        <logback-access.version>1.5.18</logback-access.version>
+        <janino.version>3.1.12</janino.version>
+
+        <!-- DLB -->
+        <dlbcryptoloader.version>1.0</dlbcryptoloader.version>
+        <com.github.jknack.handlebars.version>4.3.1</com.github.jknack.handlebars.version>
+
+        <avro-maven-plugin.version>1.12.0</avro-maven-plugin.version>
+        <com.google.code.maven-replacer-plugin>1.5.3</com.google.code.maven-replacer-plugin>
+        <flatten-maven-plugin.version>1.7.2</flatten-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <lombok-maven-plugin.version>1.18.20.0</lombok-maven-plugin.version>
+        <maven-archetype.version>3.4.0</maven-archetype.version>
+        <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
+        <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
+        <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
+        <!-- we are not using maven-scm-publish-plugin, we have to remove it in the next major version -->
+        <maven-scm-publish-plugin.version>3.3.0</maven-scm-publish-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+        <maven-surefire-report-plugin.version>3.5.4</maven-surefire-report-plugin.version>
+        <org.owasp.dependency-check-maven.version>12.1.3</org.owasp.dependency-check-maven.version>
+        <openapi-generator-maven-plugin.version>7.15.0</openapi-generator-maven-plugin.version>
+        <spring-javaformat-maven-plugin.version>0.0.47</spring-javaformat-maven-plugin.version>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>spain-nexus</id>
+            <activation>
+                <property>
+                    <name>!env.CODESPACES</name>
+                </property>
+            </activation>
+
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>nexus-snapshots</id>
+                    <url>https://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-snapshots/</url>
+                </snapshotRepository>
+                <repository>
+                    <id>nexus-releases</id>
+                    <url>https://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-releases/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+
+        <profile>
+            <id>integration-test</id>
+            <build>
+                <plugins>
+                    <!-- disable native compilation in santander-modules when running integration tests -->
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <configuration>
+                            <skipNativeTests>true</skipNativeTests>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Bouncy Castle. Using by wss4j-ws-security-common 3.0.3. Update from 1.76-->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${org.bouncycastle.bcprov-jdk18on.version}</version>
+            </dependency>
+
+            <!-- Camel Spring Boot BOM -->
+            <dependency>
+                <groupId>org.apache.camel.springboot</groupId>
+                <artifactId>camel-spring-boot-bom</artifactId>
+                <version>${apache-camel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Camel BOM -->
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-bom</artifactId>
+                <version>${apache-camel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Avoid issues using spring-kafka-test with log4j2 -->
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka-test</artifactId>
+                <scope>test</scope>
+                <version>${spring-kafka.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring-boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-to-slf4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>${com-lmax-disruptor.version}</version>
+            </dependency>
+
+            <!-- Resilience4J libraries -->
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-bom</artifactId>
+                <version>${resilience4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-test</artifactId>
+                <version>${resilience4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Kubernetes Client -->
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-client-bom</artifactId>
+                <version>${kubernetes-client-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring cloud -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Kubernetes deployer -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-deployer-kubernetes</artifactId>
+                <version>${spring-cloud-deployer.version}</version>
+            </dependency>
+
+            <!-- okhttp 3 for deployer -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>logging-interceptor</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+
+            <!-- OpenAPI al arquetipo -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-bom</artifactId>
+                <version>${springdoc-openapi.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- OpenAPI annotation -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+
+            <!-- Apache Commons -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils.version}</version>
+            </dependency>
+
+
+            <!-- Spring WS-->
+            <dependency>
+                <groupId>org.springframework.ws</groupId>
+                <artifactId>spring-ws</artifactId>
+                <version>${spring-ws.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-ws-security-dom</artifactId>
+                <version>${wss4j-ws-security-dom.version}</version>
+            </dependency>
+
+            <!-- Cache libraries -->
+            <dependency>
+                <groupId>org.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>${ehcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>${cache.api.version}</version>
+            </dependency>
+
+            <!-- Telemetry libraries -->
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback-encoder.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.santander.dynatrace.otl</groupId>
+                <artifactId>SantanderDynatraceOtl</artifactId>
+                <version>${santander-dynatrace-otl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback-classic.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-access</artifactId>
+                <version>${logback-access.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>${janino.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.santander.dlb</groupId>
+                <artifactId>DLBCryptoLoader</artifactId>
+                <version>${dlbcryptoloader.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jknack</groupId>
+                <artifactId>handlebars</artifactId>
+                <version>${com.github.jknack.handlebars.version}</version>
+            </dependency>
+
+            <!-- Santander libraries -->
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-security-authentication</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-security-authorization</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-omnichannel</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-logging</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-logging-logback</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-logging-logback-kafka-appender</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-webservice</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-core</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-batch</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-cache</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-metrics</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-partenon</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-events</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-business-events</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-extended-error</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-codetables</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-test</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-graphql</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-altair</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-in-memory</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-telemetry-log</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-dlb</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+
+            <!-- Santander Starters -->
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-authentication</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-authorization</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-webservice</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-logging</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-logging-basic</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-logging-kafka</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-logging-logback-basic</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-logging-logback-kafka</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-batch</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-omnichannel</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-omnichannel-ua-parser</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-metrics</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-cache</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-cache-base</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-cache-ehcache</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-cache-caffeine</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-cache-infinispan</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-events</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-business-events</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-parent</artifactId>
+                <type>pom</type>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-parent-lib</artifactId>
+                <type>pom</type>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-partenon</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-extended-error</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-codetables</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-test</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-graphql</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-core</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-altair</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-in-memory</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-telemetry-log</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-spring-boot-starter-dlb</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+
+            <!-- Partenon dependency -->
+            <dependency>
+                <groupId>com.santander.serenity.corporate.data</groupId>
+                <artifactId>partenon-spring-boot-starter</artifactId>
+                <version>${partenon-spring-boot-starter.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.serenity.corporate.data</groupId>
+                <artifactId>partenon-spring-boot-autoconfigure</artifactId>
+                <version>${partenon-spring-boot-starter.version}</version>
+                <exclusions>
+                    <!-- Exclude commons-logging. We don't need it. We use log4j -->
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- SAT -->
+            <dependency>
+                <groupId>com.santander.serenity.corporate.data</groupId>
+                <artifactId>partenon-sat-spring-boot-starter</artifactId>
+                <version>${partenon-sat-spring-boot-starter.version}</version>
+                <exclusions>
+                    <!-- Exclude commons-logging. We don't need it. We use log4j -->
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- Gravity - MDS (Microservice Database Switch) -->
+            <dependency>
+                <groupId>com.gruposantander.enablers.dualrun</groupId>
+                <artifactId>mds-dualrun-lib</artifactId>
+                <version>${mds-dualrun-lib.version}</version>
+            </dependency>
+
+            <!-- Santander Java library -->
+            <dependency>
+                <groupId>com.santander.library</groupId>
+                <artifactId>santander-altair-connector-mq</artifactId>
+                <version>${santander.java.library.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.library</groupId>
+                <artifactId>santander-altair-connector-core</artifactId>
+                <version>${santander.java.library.version}</version>
+            </dependency>
+
+
+            <!-- CloudEvents libraries -->
+            <dependency>
+                <groupId>io.cloudevents</groupId>
+                <artifactId>cloudevents-kafka</artifactId>
+                <version>${cloudevents.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cloudevents</groupId>
+                <artifactId>cloudevents-json-jackson</artifactId>
+                <version>${cloudevents.version}</version>
+            </dependency>
+
+            <!-- Confluent libraries -->
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-avro-serializer</artifactId>
+                <version>${confluent.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>monitoring-interceptors</artifactId>
+                <version>${confluent.version}</version>
+            </dependency>
+
+            <!-- micrometer tracing -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>context-propagation</artifactId>
+                <version>${micrometer-context-propagation.version}</version>
+            </dependency>
+
+            <!-- BlockHound libraries-->
+            <dependency>
+                <groupId>io.projectreactor.tools</groupId>
+                <artifactId>blockhound</artifactId>
+                <version>${blockhound.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.projectreactor.tools</groupId>
+                <artifactId>blockhound-junit-platform</artifactId>
+                <version>${blockhound.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- jsr305 for generate javadoc -->
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${com.google.code.findbug.jsr305.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!--  MapStruct  -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
+            <!-- User Agent Utils -->
+            <!-- https://mvnrepository.com/artifact/nl.basjes.parse.useragent/yauaa -->
+            <dependency>
+                <groupId>nl.basjes.parse.useragent</groupId>
+                <artifactId>yauaa</artifactId>
+                <version>${yauaa.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.owasp.encoder</groupId>
+                <artifactId>encoder</artifactId>
+                <version>${org.owasp.encoder.version}</version>
+            </dependency>
+
+            <!-- Santander Batch Integration -->
+            <dependency>
+                <groupId>es.santander.darwin</groupId>
+                <artifactId>darwin-batch-integration-sftp-starter</artifactId>
+                <version>${batch-integration.version}</version>
+            </dependency>
+
+            <!-- Santander Code Analysis Dependencies -->
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-code-analysis-library-rules</artifactId>
+                <version>${santander-code-analysis-library-rules.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.santander.framework.springboot</groupId>
+                <artifactId>santander-code-analysis-microservice-rules</artifactId>
+                <version>${santander-code-analysis-microservice-rules.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${maven-enforcer-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok-maven-plugin</artifactId>
+                    <version>${lombok-maven-plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${maven-site-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-report-plugin</artifactId>
+                    <version>${maven-surefire-report-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>${flatten-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.google.code.maven-replacer-plugin</groupId>
+                    <artifactId>replacer</artifactId>
+                    <version>${com.google.code.maven-replacer-plugin}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven-javadoc-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>${maven-project-info-reports-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${org.owasp.dependency-check-maven.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro-maven-plugin</artifactId>
+                    <version>${avro-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>schema</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
+                                <outputDirectory>${project.build.directory}/generated/avro</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-publish-plugin</artifactId>
+                    <version>${maven-scm-publish-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.santander.ars</groupId>
+                    <artifactId>gln-back-arsenal-jpa-codegen-maven-plugin</artifactId>
+                    <version>${arsenal-backend.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.santander.gluon.plugins</groupId>
+                    <artifactId>partenon-maven-plugin</artifactId>
+                    <version>${partenon-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.santander.framework.springboot</groupId>
+                    <artifactId>santander-code-analysis-plugin</artifactId>
+                    <version>${santander-code-analysis-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.spring.javaformat</groupId>
+                    <artifactId>spring-javaformat-maven-plugin</artifactId>
+                    <version>${spring-javaformat-maven-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports><!-- select reports -->
+                            <report>index</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
+</project>

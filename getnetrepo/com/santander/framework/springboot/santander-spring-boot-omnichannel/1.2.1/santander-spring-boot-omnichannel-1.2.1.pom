@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.santander.framework.springboot</groupId>
+    <artifactId>santander-spring-boot-parent</artifactId>
+    <version>1.2.1</version>
+    <relativePath>../santander-spring-boot-parent</relativePath>
+  </parent>
+  <groupId>com.santander.framework.springboot</groupId>
+  <artifactId>santander-spring-boot-omnichannel</artifactId>
+  <version>1.2.1</version>
+  <name>Santander Spring Boot Omnichannel Library</name>
+  <description>Library to extract channel + environment and put it in RequestContextHolder</description>
+  <url>https://gluon.dev.corp/microservices/docs/santander-spring-boot/santander-spring-boot-parent/santander-spring-boot-omnichannel/</url>
+  <organization>
+    <name>Santander Technology</name>
+    <url>https://www.bancosantander.es/</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+  <scm>
+    <url>https://github.com/spring-projects/spring-boot/santander-spring-boot-dependencies/santander-spring-boot-parent/santander-spring-boot-omnichannel</url>
+  </scm>
+  <issueManagement />
+  <dependencies>
+    <dependency>
+      <groupId>com.santander.framework.springboot</groupId>
+      <artifactId>santander-spring-boot-core</artifactId>
+      <version>1.2.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.basjes.parse.useragent</groupId>
+      <artifactId>yauaa</artifactId>
+      <version>7.31.0</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <version>3.5.6</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.40</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.graalvm.buildtools</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <version>0.10.6</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
