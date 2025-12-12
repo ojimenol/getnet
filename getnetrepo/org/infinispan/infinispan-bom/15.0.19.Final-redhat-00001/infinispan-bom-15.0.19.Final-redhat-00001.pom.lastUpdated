@@ -1,0 +1,7 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Fri Dec 12 09:21:49 CET 2025
+@default-maven-default-http-blocker-http\://0.0.0.0/.lastUpdated=1765527639905
+http\://0.0.0.0/.error=Could not transfer artifact org.infinispan\:infinispan-bom\:pom\:15.0.19.Final-redhat-00001 from/to maven-default-http-blocker (http\://0.0.0.0/)\: Blocked mirror for repositories\: [maven-repository (http\://maven.repository.redhat.com/ga/, default, releases)]
+http\://maven.repository.redhat.com/ga/.lastUpdated=1765527709312
+https\://repo.maven.apache.org/maven2/.error=
+https\://repo.maven.apache.org/maven2/.lastUpdated=1765527458414

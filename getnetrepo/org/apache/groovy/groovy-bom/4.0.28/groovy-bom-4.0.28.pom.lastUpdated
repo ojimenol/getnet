@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Fri Dec 12 09:12:18 CET 2025
+@default-maven-default-http-blocker-http\://0.0.0.0/.lastUpdated=1765527138953
+http\://0.0.0.0/.error=Could not transfer artifact org.apache.groovy\:groovy-bom\:pom\:4.0.28 from/to maven-default-http-blocker (http\://0.0.0.0/)\: Blocked mirror for repositories\: [jboss-ga-repository (http\://maven.repository.redhat.com/techpreview/all, default, releases)]
+https\://repo.maven.apache.org/maven2/.lastUpdated=1765527138981
