@@ -1,5 +1,0 @@
-#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Thu Dec 11 10:47:37 CET 2025
-06145c6efd9d721cf307c44b9a67763628a95e05@default-getnet-br-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.lastUpdated=1765446457563
-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.error=Could not transfer artifact io.micrometer\:micrometer-jakarta9\:pom\:1.16.0-M3 from/to getnet-br (https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central)\: PKIX path building failed\: sun.security.provider.certpath.SunCertPathBuilderException\: unable to find valid certification path to requested target
-https\://repo.maven.apache.org/maven2/.lastUpdated=1765446457800
