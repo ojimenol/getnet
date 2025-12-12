@@ -1,0 +1,66 @@
+spring.profiles.active: local
+---
+santander:
+  region: boae
+  suffix:
+  app-name: mportal
+  logging:
+    format: GLUONLOG
+    gluon-log:
+      company: ems
+      componentName: mp0001
+      componentId: CHANGEIT_CMPT_ID
+      componentType: microservice
+      appId: CHANGEIT_APP_ID
+    entity: ESP
+    paas-app-version: "1.2.1"
+    kafka:
+      server: ${env.logging-server}
+  core:
+    exceptions:
+      error-format: GLUON
+  security:
+    connectors:
+      pkm-connector:
+        pkm-endpoint:
+          - ${env.pkm-endpoint}
+    caffeine:
+      # disable null values in cache for performance reasons
+      allow-null-values: false
+
+spring:
+  data:
+    mongodb:
+      uri: ${env.mongodb.uri}
+      database: ${env.mongodb.database}
+  application:
+    name: ems-mportal-mp0001
+  session:
+    store-type: none
+  cache:
+    type: CAFFEINE #Activated cache caffeine by default (If you want to change the cache to JBoss DataGrid, check the documentacion in confluence)
+    caffeine:
+      spec: expireAfterWrite=10m #Specifies that each entry should be automatically removed from the cache once that duration has elapsed after the entry’s creation
+  lifecycle.timeout-per-shutdown-phase: 2m
+
+logging.level:
+  com.santander.ems.mportal.emsmportalmp0001.Application: INFO
+  root: WARN
+
+management:
+  endpoint.health:
+    show-details: ALWAYS
+
+health:
+  config:
+    enabled: false
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /swagger-ui.html
+
+server:
+  max-http-request-header-size: 128KB
+  forward-headers-strategy: framework
+  shutdown: graceful
