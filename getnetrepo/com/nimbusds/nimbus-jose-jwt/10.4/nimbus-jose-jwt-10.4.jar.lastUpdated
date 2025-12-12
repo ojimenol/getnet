@@ -1,0 +1,9 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Dec 11 10:47:43 CET 2025
+06145c6efd9d721cf307c44b9a67763628a95e05@default-getnet-br-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.lastUpdated=1765446459490
+@default-central-https\://repo.maven.apache.org/maven2/.lastUpdated=1765446463810
+@default-maven_central-https\://repo.maven.apache.org/maven2/.lastUpdated=1765446290856
+https\://build.shibboleth.net/nexus/content/repositories/releases/.error=
+https\://build.shibboleth.net/nexus/content/repositories/releases/.lastUpdated=1765446290243
+https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.error=Could not transfer artifact com.nimbusds\:nimbus-jose-jwt\:jar\:10.4 from/to getnet-br (https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central)\: PKIX path building failed\: sun.security.provider.certpath.SunCertPathBuilderException\: unable to find valid certification path to requested target
+https\://repo.maven.apache.org/maven2/.error=Could not transfer artifact com.nimbusds\:nimbus-jose-jwt\:jar\:10.4 from/to central (https\://repo.maven.apache.org/maven2)\: status code\: 403, reason phrase\: Forbidden (403)

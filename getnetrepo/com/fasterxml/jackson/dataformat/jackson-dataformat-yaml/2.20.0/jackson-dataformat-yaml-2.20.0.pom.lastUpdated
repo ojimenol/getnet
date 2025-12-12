@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Tue Dec 02 08:38:36 CET 2025
+@default-nexus-master-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.lastUpdated=1764661116265
+https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.error=Could not transfer artifact com.fasterxml.jackson.dataformat\:jackson-dataformat-yaml\:pom\:2.20.0 from/to nexus-master (https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central)\: PKIX path building failed\: sun.security.provider.certpath.SunCertPathBuilderException\: unable to find valid certification path to requested target
+https\://repo.maven.apache.org/maven2/.lastUpdated=1764661116432

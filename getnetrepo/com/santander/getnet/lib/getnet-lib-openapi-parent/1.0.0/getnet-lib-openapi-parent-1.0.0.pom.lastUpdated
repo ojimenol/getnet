@@ -1,10 +1,12 @@
 #NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Tue Dec 09 10:37:43 CET 2025
+#Fri Dec 12 09:48:21 CET 2025
 06145c6efd9d721cf307c44b9a67763628a95e05@default-getnet-br-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.lastUpdated=1765273063723
 06145c6efd9d721cf307c44b9a67763628a95e05@default-getnet-br-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-centralz/.lastUpdated=1765270030873
 06145c6efd9d721cf307c44b9a67763628a95e05@default-getnet-br-https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1/.lastUpdated=1764858207871
+@default-getnet-br-https\://nexus.alm.europe.cloudcenter.corp/repository/maven-releases-master/.lastUpdated=1765529300387
+https\://nexus.alm.europe.cloudcenter.corp/repository/maven-releases-master/.error=Could not transfer artifact com.santander.getnet.lib\:getnet-lib-openapi-parent\:pom\:1.0.0 from/to getnet-br (https\://nexus.alm.europe.cloudcenter.corp/repository/maven-releases-master)\: PKIX path building failed\: sun.security.provider.certpath.SunCertPathBuilderException\: unable to find valid certification path to requested target
 https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.error=Could not transfer artifact com.santander.getnet.lib\:getnet-lib-openapi-parent\:pom\:1.0.0 from/to getnet-br (https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central)\: PKIX path building failed\: sun.security.provider.certpath.SunCertPathBuilderException\: unable to find valid certification path to requested target
 https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-centralz/.error=Could not transfer artifact com.santander.getnet.lib\:getnet-lib-openapi-parent\:pom\:1.0.0 from/to getnet-br (https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-centralz)\: PKIX path building failed\: sun.security.provider.certpath.SunCertPathBuilderException\: unable to find valid certification path to requested target
 https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1/.error=Could not transfer artifact com.santander.getnet.lib\:getnet-lib-openapi-parent\:pom\:1.0.0 from/to getnet-br (https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1)\: status code\: 401, reason phrase\: Unauthorized (401)
 https\://repo.maven.apache.org/maven2/.error=
-https\://repo.maven.apache.org/maven2/.lastUpdated=1765270031880
+https\://repo.maven.apache.org/maven2/.lastUpdated=1765529301576

@@ -1,0 +1,10 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Tue Dec 09 11:12:41 CET 2025
+06145c6efd9d721cf307c44b9a67763628a95e05@default-getnet-br-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-centralz/.lastUpdated=1765273013234
+06145c6efd9d721cf307c44b9a67763628a95e05@default-getnet-br-https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1/.lastUpdated=1765270048606
+@default-central-https\://repo.maven.apache.org/maven2/.lastUpdated=1765275030311
+@default-nexus-master-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.lastUpdated=1765268843965
+https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.lastUpdated=1765275161640
+https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-centralz/.error=Could not transfer artifact com.google.errorprone\:error_prone_annotations\:jar\:2.26.1 from/to getnet-br (https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-centralz)\: Unexpected error\: java.security.InvalidAlgorithmParameterException\: the trustAnchors parameter must be non-empty
+https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1/.error=Could not transfer artifact com.google.errorprone\:error_prone_annotations\:jar\:2.26.1 from/to getnet-br (https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1)\: status code\: 401, reason phrase\: Unauthorized (401)
+https\://repo.maven.apache.org/maven2/.error=Could not transfer artifact com.google.errorprone\:error_prone_annotations\:jar\:2.26.1 from/to central (https\://repo.maven.apache.org/maven2)\: Unexpected error\: java.security.InvalidAlgorithmParameterException\: the trustAnchors parameter must be non-empty

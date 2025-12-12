@@ -1,0 +1,8 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Dec 04 15:23:49 CET 2025
+06145c6efd9d721cf307c44b9a67763628a95e05@default-getnet-br-https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1/.lastUpdated=1764858229090
+@default-central-https\://repo.maven.apache.org/maven2/.lastUpdated=1764856322183
+@default-nexus-master-https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.lastUpdated=1764660589590
+https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central/.error=Could not transfer artifact ch.qos.logback\:logback-classic\:jar\:1.5.21 from/to nexus-master (https\://nexusmaster.alm.europe.cloudcenter.corp/repository/maven-central)\: PKIX path building failed\: sun.security.provider.certpath.SunCertPathBuilderException\: unable to find valid certification path to requested target
+https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1/.error=Could not transfer artifact ch.qos.logback\:logback-classic\:jar\:1.5.21 from/to getnet-br (https\://pkgs.dev.azure.com/albatross-getnet/_packaging/getnet-br/maven/v1)\: status code\: 401, reason phrase\: Unauthorized (401)
+https\://repo.maven.apache.org/maven2/.error=Could not transfer artifact ch.qos.logback\:logback-classic\:jar\:1.5.21 from/to central (https\://repo.maven.apache.org/maven2)\: status code\: 403, reason phrase\: Forbidden (403)
