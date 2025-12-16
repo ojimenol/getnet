@@ -44,7 +44,7 @@ spring:
   lifecycle.timeout-per-shutdown-phase: 2m
 
 logging.level:
-  com.santander.ems.mportal.emsmportalmp0001.Application: INFO
+  com.santander.ems.mportal.emsmportalmp0001: INFO
   root: WARN
 
 management:
@@ -64,3 +64,18 @@ server:
   max-http-request-header-size: 128KB
   forward-headers-strategy: framework
   shutdown: graceful
+
+app:
+  cos:
+    jweurl: ${env.commerce-portal.cos.jwe-url}
+    keyalias: ${env.commerce-portal.cos.keyalias}
+    santander-client-id: ${env.commerce-portal.cos.santander-client-id}
+  sas:
+    auth-url: ${env.commerce-portal.sas.auth-url}
+    credential-type-jwt: ${env.commerce-portal.sas.credential-type-jwt}
+    credential-type-token-corp: ${env.commerce-portal.sas.credential-type-token-corp}
+    uid: ${env.commerce-portal.sas.uid}
+    password: ${env.commerce-portal.sas.password}
+    realm: ${env.commerce-portal.sas.realm}
+  nuek:
+    commerces: ${env.commerce-portal-portal.commerces-url}

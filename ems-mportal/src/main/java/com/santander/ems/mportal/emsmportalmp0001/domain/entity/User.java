@@ -1,8 +1,10 @@
 package com.santander.ems.mportal.emsmportalmp0001.domain.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import com.santander.ems.mportal.emsmportalmp0001.domain.command.mongo.UserCreateCommand;
+import com.santander.ems.mportal.emsmportalmp0001.domain.command.mongo.UserEditCommand;
 
 /**
  * {@link User} model record, contains the User data.
@@ -12,6 +14,7 @@ import com.santander.ems.mportal.emsmportalmp0001.domain.command.mongo.UserCreat
  */
 public record User(String id, String name, byte age, String country) implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
 	/* Empty Constructor */
@@ -21,5 +24,9 @@ public record User(String id, String name, byte age, String country) implements 
 
     public User requestToCreate(UserCreateCommand userCreateCommand) {
         return new User(this.id, userCreateCommand.name(), userCreateCommand.age(), userCreateCommand.country());
+    }
+
+    public User requestToEdit(UserEditCommand userEditCommand) {
+        return new User(this.id, userEditCommand.name(), userEditCommand.age(), userEditCommand.country());
     }
 }

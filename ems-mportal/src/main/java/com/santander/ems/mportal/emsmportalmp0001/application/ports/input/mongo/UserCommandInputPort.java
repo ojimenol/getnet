@@ -9,6 +9,8 @@ import com.santander.ems.mportal.emsmportalmp0001.application.usecases.mongo.Use
 
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 /**
  * The input port for user command operations in a Mongo database.
  * 
@@ -39,7 +41,9 @@ public class UserCommandInputPort implements UserCommandUseCase {
      */
     @Override
     public User createUser(UserCreateCommand userCreateCommand) {
-        return commandOutputPort.create(new User().requestToCreate(userCreateCommand));
+        return Optional.of(userCreateCommand)
+            .map(new User()::requestToCreate).map(commandOutputPort::create)
+            .orElseThrow(() -> new RuntimeException("Can't create user: " + userCreateCommand));
     }
 
     /**
@@ -51,9 +55,11 @@ public class UserCommandInputPort implements UserCommandUseCase {
      */
     @Override
     public User editUser(UserEditCommand userEditCommand, String id) {
-        User currentUser = queryOutputPort.getById(id);
-        User userToUpdate = new User(currentUser.id(), userEditCommand.name(), userEditCommand.age(), userEditCommand.country());
-        return commandOutputPort.update(userToUpdate);
+        return Optional.of(id)
+            .map(queryOutputPort::getById)
+            .map(user -> user.requestToEdit(userEditCommand))
+            .map(commandOutputPort::update)
+            .orElseThrow(() -> new RuntimeException("Can't update user: " + userEditCommand));
     }
 
     /**
@@ -63,7 +69,9 @@ public class UserCommandInputPort implements UserCommandUseCase {
      */
     @Override
     public void deleteUser(String id) {
-        User currentUser = queryOutputPort.getById(id);
-        commandOutputPort.deleteById(currentUser.id());
+        Optional.of(id)
+            .map(queryOutputPort::getById)
+            .map(User::id)
+            .ifPresent(commandOutputPort::deleteById);
     }
 }

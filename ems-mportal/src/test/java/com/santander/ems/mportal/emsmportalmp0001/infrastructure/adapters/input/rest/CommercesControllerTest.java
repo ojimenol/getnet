@@ -15,14 +15,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @WithMockUser
-class HelloWorldControllerTest {
+class CommercesControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     void testCallHelloEndpoint() throws Exception {
-        mockMvc.perform(get("/ems-mportal-mp0001/hello"))
+        mockMvc.perform(get("/ems-mportal-mp0001/v1/commerce")
+                    .header("Authorization","auth")
+                    .param("personCode", "personCode")
+                    .param("personType", "personType")
+                    .param("billingDateFrom", "billingDateFrom")
+                    .param("billingDateTo", "billingDateTo")
+                    .param("order", "order")
+                    .param("listDateFrom", "listDateFrom")
+                    .param("listDateTo", "listDateTo"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Hello World!"));
     }

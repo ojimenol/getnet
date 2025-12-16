@@ -3,7 +3,6 @@ package com.santander.ems.mportal.emsmportalmp0001.infrastructure.adapters.outpu
 import com.santander.ems.mportal.emsmportalmp0001.domain.entity.User;
 import com.santander.ems.mportal.emsmportalmp0001.application.ports.output.mongo.UserCommandOutputPort;
 import com.santander.ems.mportal.emsmportalmp0001.infrastructure.adapters.output.mongo.mapper.UserDboMapper;
-import com.santander.ems.mportal.emsmportalmp0001.infrastructure.adapters.output.mongo.data.UserEntity;
 import com.santander.ems.mportal.emsmportalmp0001.infrastructure.adapters.output.mongo.repository.IUserMongoRepository;
 
 import org.springframework.stereotype.Repository;

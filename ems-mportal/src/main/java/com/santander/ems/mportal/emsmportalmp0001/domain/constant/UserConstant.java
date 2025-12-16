@@ -1,5 +1,6 @@
 package com.santander.ems.mportal.emsmportalmp0001.domain.constant;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -13,10 +14,11 @@ public class UserConstant implements Serializable {
 	/**
 	 * @serial serialVersionUID
 	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 	
 	/**
      * Error message: No se encontro un usuario con el id #.
      */
-	public static final String USER_NOT_FOUND_MESSAGE_ERROR = "No se encontro un usuario con el id %s";
+	public static final String USER_NOT_FOUND_MESSAGE_ERROR = "Can't find user with id %s";
 }

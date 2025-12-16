@@ -49,11 +49,11 @@ public class UserQueryOutputAdapterTest {
 
     @Test
 	void testGetByIdException() {
-		String expectedMessage = "No se encontro un usuario con el id";
+		String expectedMessage = "Can't find user with id";
 		when(userMongoRepository.findById(anyString())).thenReturn(Optional.empty());
 		try {
 			userQueryOutputAdapter.getById(anyString());
-		}catch (UserException e) {
+		} catch (UserException e) {
 		    String actualMessage = e.getErrorMessage();
 		    assertTrue(actualMessage.contains(expectedMessage));
 		}
