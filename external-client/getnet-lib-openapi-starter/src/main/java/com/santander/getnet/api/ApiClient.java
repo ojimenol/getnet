@@ -1,23 +1,9 @@
-package com.santander.getnet.nuek.auth.client.model;
+package com.santander.getnet.api;
 
-/*import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.santander.getnet.api.ExternalClientApi;
-import com.santander.getnet.nuek.client.model.auth.ApiKeyAuth;
-import com.santander.getnet.nuek.client.model.auth.Authentication;
-import com.santander.getnet.nuek.client.model.auth.HttpBasicAuth;
-import com.santander.getnet.nuek.client.model.auth.HttpBearerAuth;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.openapitools.jackson.nullable.JsonNullableModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,9 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.http.codec.json.JacksonJsonDecoder;
 import org.springframework.http.codec.json.JacksonJsonEncoder;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MimeType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
@@ -37,48 +21,68 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.util.function.Tuple3;
+import reactor.util.function.Tuples;
+import reactor.util.retry.Retry;
 import tools.jackson.core.json.JsonReadFeature;
-import tools.jackson.databind.json.JsonMapper;*/
+import tools.jackson.databind.json.JsonMapper;
 
-public class ApiClient2 {//implements ExternalClientApi {
-    /*private static final String URI_TEMPLATE_ATTRIBUTE = WebClient.class.getName() + ".uriTemplate";
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.time.Duration;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+public class ApiClient implements ExternalClientApi {
+    private static final Logger LOG = LoggerFactory.getLogger(ApiClient.class);
+    private static final String URI_TEMPLATE_ATTRIBUTE = WebClient.class.getName() + ".uriTemplate";
     private final HttpHeaders defaultHeaders;
     private final MultiValueMap<String, String> defaultCookies;
     private String basePath;
+    private int retries;
+    private int retrySeconds;
     private WebClient webClient;
     private final DateFormat dateFormat;
     private final JsonMapper jsonMapper;
-    private Map<String, Authentication> authentications;
+    private Map<String, Object> authentications;
 
-    public ApiClient2() {
+    public ApiClient() {
         this.defaultHeaders = new HttpHeaders();
         this.defaultCookies = new LinkedMultiValueMap<>();
         this.basePath = "https://srvnuarintra.santander.pru.bsch";
+        this.retries = 0;
+        this.retrySeconds = 0;
         this.dateFormat = createDefaultDateFormat();
         this.jsonMapper = createDefaultJsonMapper(this.dateFormat);
         this.webClient = buildWebClient(this.jsonMapper);
         this.init();
     }
 
-    public ApiClient2(WebClient webClient) {
+    public ApiClient(WebClient webClient) {
         this(Optional.ofNullable(webClient)
-                .orElseGet(ApiClient2::buildWebClient), createDefaultDateFormat());
+                .orElseGet(ApiClient::buildWebClient), createDefaultDateFormat());
     }
 
-    public ApiClient2(JsonMapper mapper, DateFormat format) {
+    public ApiClient(JsonMapper mapper, DateFormat format) {
         this(buildWebClient(mapper.rebuild().build()), format);
     }
 
-    public ApiClient2(WebClient webClient, JsonMapper mapper, DateFormat format) {
-        this((WebClient)Optional.ofNullable(webClient).orElseGet(() -> {
-            return buildWebClient(mapper.rebuild().build());
-        }), format);
+    public ApiClient(WebClient webClient, JsonMapper mapper, DateFormat format) {
+        this(Optional.ofNullable(webClient)
+                .orElseGet(() -> buildWebClient(mapper.rebuild().build())), format);
     }
 
-    private ApiClient2(WebClient webClient, DateFormat format) {
+    private ApiClient(WebClient webClient, DateFormat format) {
         this.defaultHeaders = new HttpHeaders();
         this.defaultCookies = new LinkedMultiValueMap<>();
         this.basePath = "https://srvnuarintra.santander.pru.bsch";
+        this.retries = 0;
+        this.retrySeconds = 0;
         this.webClient = webClient;
         this.dateFormat = format;
         this.jsonMapper = createDefaultJsonMapper(format);
@@ -86,9 +90,9 @@ public class ApiClient2 {//implements ExternalClientApi {
     }
 
     public static DateFormat createDefaultDateFormat() {
-        DateFormat dateFormat = new RFC3339DateFormat();
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return dateFormat;
+        //DateFormat dateFormat = new RFC3339DateFormat();
+        //dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return null;
     }
 
     public static JsonMapper createDefaultJsonMapper(@Nullable DateFormat dateFormat) {
@@ -106,9 +110,6 @@ public class ApiClient2 {//implements ExternalClientApi {
     }
 
     protected void init() {
-        this.authentications = new HashMap<>();
-        this.authentications.put("bearerAuth", new HttpBearerAuth("bearer"));
-        this.authentications = Collections.unmodifiableMap(this.authentications);
     }
 
     public static WebClient.Builder buildWebClientBuilder(JsonMapper mapper) {
@@ -135,12 +136,30 @@ public class ApiClient2 {//implements ExternalClientApi {
         return this.basePath;
     }
 
-    public ApiClient2 setBasePath(String basePath) {
+    public ApiClient setBasePath(String basePath) {
         this.basePath = basePath;
         return this;
     }
 
-    public Map<String, Authentication> getAuthentications() {
+    public int getRetries() {
+        return this.retries;
+    }
+
+    public ApiClient setRetries(int numRetries) {
+        this.retries = numRetries;
+        return this;
+    }
+
+    public int getRetrySeconds() {
+        return this.retrySeconds;
+    }
+
+    public ApiClient setRetrySeconds(int seconds) {
+        this.retrySeconds = seconds;
+        return this;
+    }
+
+    /*public Map<String, Authentication> getAuthentications() {
         return this.authentications;
     }
 
@@ -148,13 +167,7 @@ public class ApiClient2 {//implements ExternalClientApi {
         return this.authentications.get(authName);
     }
 
-    private <T> T getAuthenticationObject(Class<T> authClass, String errorMessage) {
-        return this.authentications.values().stream()
-                .filter(authClass::isInstance)
-                .findFirst()
-                .map(authClass::cast)
-                .orElseThrow(() -> new RuntimeException(errorMessage));
-    }
+
 
     public void setBearerToken(String bearerToken) {
         getAuthenticationObject(HttpBearerAuth.class, "No Bearer authentication configured!")
@@ -179,14 +192,14 @@ public class ApiClient2 {//implements ExternalClientApi {
     public void setApiKeyPrefix(String apiKeyPrefix) {
         getAuthenticationObject(ApiKeyAuth.class, "No API key authentication configured!")
                 .setApiKeyPrefix(apiKeyPrefix);
-    }
+    }*/
 
-    public ApiClient2 setUserAgent(String userAgent) {
+    public ApiClient setUserAgent(String userAgent) {
         this.addDefaultHeader("User-Agent", userAgent);
         return this;
     }
 
-    public ApiClient2 addDefaultHeader(String name, String value) {
+    public ApiClient addDefaultHeader(String name, String value) {
         if (this.defaultHeaders.containsHeader(name)) {
             this.defaultHeaders.remove(name);
         }
@@ -195,7 +208,7 @@ public class ApiClient2 {//implements ExternalClientApi {
         return this;
     }
 
-    public ApiClient2 addDefaultCookie(String name, String value) {
+    public ApiClient addDefaultCookie(String name, String value) {
         this.defaultCookies.add(name, value);
         return this;
     }
@@ -207,9 +220,8 @@ public class ApiClient2 {//implements ExternalClientApi {
     public Date parseDate(String str) {
         try {
             return this.dateFormat.parse(str);
-        } catch (ParseException var3) {
-            ParseException e = var3;
-            throw new RuntimeException(e);
+        } catch (ParseException pe) {
+            throw new RuntimeException(pe);
         }
     }
 
@@ -246,7 +258,7 @@ public class ApiClient2 {//implements ExternalClientApi {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (name != null && !name.isEmpty() && value != null) {
             if (collectionFormat == null) {
-                collectionFormat = ApiClient2.CollectionFormat.CSV;
+                collectionFormat = CollectionFormat.CSV;
             }
 
             if (value instanceof Map) {
@@ -263,7 +275,7 @@ public class ApiClient2 {//implements ExternalClientApi {
                     var valueCollection = (Collection)value;
                     if (valueCollection.isEmpty()) {
                         return params;
-                    } else if (collectionFormat.equals(ApiClient.CollectionFormat.MULTI)) {
+                    } else if (collectionFormat.equals(CollectionFormat.MULTI)) {
                         valueCollection
                             .forEach(val -> params.add(name, this.parameterToString(val)));
                         return params;
@@ -279,11 +291,11 @@ public class ApiClient2 {//implements ExternalClientApi {
         } else {
             return params;
         }
-    }*/
+    }
 
-    //public boolean isJsonMime(String mediaType) {
-        //if ("*/*".equals(mediaType)) {
-            /*return true;
+    public boolean isJsonMime(String mediaType) {
+        if ("*/*".equals(mediaType)) {
+            return true;
         } else {
             try {
                 return this.isJsonMime(MediaType.parseMediaType(mediaType));
@@ -327,9 +339,9 @@ public class ApiClient2 {//implements ExternalClientApi {
 
     protected BodyInserter<?, ? super ClientHttpRequest> selectBody(Object obj, MultiValueMap<String, Object> formParams, MediaType contentType) {
         if (MediaType.APPLICATION_FORM_URLENCODED.equals(contentType)) {
-            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            formParams.toSingleValueMap().forEach((key, value) -> map.add(key, String.valueOf(value)));
-            return BodyInserters.fromFormData(map);
+            var newMap = formParams.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> List.of(String.valueOf(entry.getValue()))));
+            return BodyInserters.fromFormData(MultiValueMap.fromMultiValue(newMap));
         } else if (MediaType.MULTIPART_FORM_DATA.equals(contentType)) {
             return BodyInserters.fromMultipartData(formParams);
         } else {
@@ -338,56 +350,56 @@ public class ApiClient2 {//implements ExternalClientApi {
     }
 
     public <T> WebClient.ResponseSpec invokeAPI(String path, HttpMethod method, Map<String, Object> pathParams, MultiValueMap<String, String> queryParams, Object body, HttpHeaders headerParams, MultiValueMap<String, String> cookieParams, MultiValueMap<String, Object> formParams, List<MediaType> accept, MediaType contentType, String[] authNames, ParameterizedTypeReference<T> returnType) throws RestClientException {
-        WebClient.RequestBodySpec requestBuilder = this.prepareRequest(path, method, pathParams, queryParams, body, headerParams, cookieParams, formParams, accept, contentType, authNames);
-        return requestBuilder.retrieve();
+        return this.prepareRequest(path, method, pathParams, queryParams, body, headerParams, cookieParams, formParams, accept, contentType, authNames)
+            .retrieve();
     }
 
     private String generateQueryUri(MultiValueMap<String, String> queryParams, Map<String, Object> uriParams) {
-        StringBuilder queryBuilder = new StringBuilder();
-        queryParams.forEach((name, values) -> {
-            if (CollectionUtils.isEmpty(values)) {
-                if (queryBuilder.length() != 0) {
-                    queryBuilder.append('&');
-                }
 
-                queryBuilder.append(name);
+        Function<String, List<Tuple3<String, String, String>>> flattenMap = name -> Optional.of(name)
+            .map(queryParams::get)
+            .filter(Predicate.not(Collection::isEmpty))
+            .map(values -> IntStream.range(0, values.size())
+                .boxed()
+                .map(idx -> Tuples.of(name, name + idx, values.get(idx)))
+                .toList())
+            .orElseGet(() -> List.of(Tuples.of(name, name, "")));
+
+        Function<Tuple3<String, String, String>, String> toQueryParam = data -> {
+            if (!data.getT1().equals(data.getT2())) {
+              uriParams.put(data.getT2(), data.getT3());
+              return data.getT1() + "={" + data.getT2() + "}";
             } else {
-                int valueItemCounter = 0;
-                Iterator var5 = values.iterator();
-
-                while(var5.hasNext()) {
-                    Object value = var5.next();
-                    if (queryBuilder.length() != 0) {
-                        queryBuilder.append('&');
-                    }
-
-                    queryBuilder.append(name);
-                    if (value != null) {
-                        String templatizedKey = name + valueItemCounter++;
-                        uriParams.put(templatizedKey, value.toString());
-                        queryBuilder.append('=').append("{").append(templatizedKey).append("}");
-                    }
-                }
+              return data.getT1();
             }
+        };
 
-        });
-        return queryBuilder.toString();
+        return queryParams.keySet().stream()
+           .map(flattenMap)
+           .flatMap(List::stream)
+           .map(toQueryParam)
+           .collect(Collectors.joining("&"));
     }
 
     private WebClient.RequestBodySpec prepareRequest(String path, HttpMethod method, Map<String, Object> pathParams, MultiValueMap<String, String> queryParams, Object body, HttpHeaders headerParams, MultiValueMap<String, String> cookieParams, MultiValueMap<String, Object> formParams, List<MediaType> accept, MediaType contentType, String[] authNames) {
         this.updateParamsForAuth(authNames, queryParams, headerParams, cookieParams);
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(this.basePath).path(path);
-        String finalUri = builder.build(false).toUriString();
-        Map<String, Object> uriParams = new HashMap();
-        uriParams.putAll(pathParams);
-        if (queryParams != null && !queryParams.isEmpty()) {
-            String queryUri = this.generateQueryUri(queryParams, uriParams);
-            finalUri = finalUri + "?" + queryUri;
-        }
 
-        WebClient.RequestBodySpec requestBuilder = (WebClient.RequestBodySpec)this.webClient.method(method).uri(finalUri, uriParams);
+        Map<String, Object> uriParams = new HashMap<>(pathParams);
+
+        UnaryOperator<String> finalizeUriBuild = uri -> Optional.of(uri)
+            .filter(value -> Objects.nonNull(queryParams) && !queryParams.isEmpty())
+            .map(value -> value + "?" + this.generateQueryUri(queryParams, uriParams))
+            .orElse(uri);
+
+        var requestBuilder = Optional.of(path)
+            .map(UriComponentsBuilder.fromUriString(this.basePath)::path)
+            .map(builder -> builder.build(false).toUriString())
+            .map(finalizeUriBuild)
+            .map(uri -> this.webClient.method(method).uri(uri, uriParams))
+            .orElseThrow(RuntimeException::new);
+
         if (accept != null) {
-            requestBuilder.accept((MediaType[])accept.toArray(new MediaType[accept.size()]));
+            requestBuilder.accept(accept.toArray(MediaType[]::new));
         }
 
         if (contentType != null) {
@@ -403,68 +415,50 @@ public class ApiClient2 {//implements ExternalClientApi {
         return requestBuilder;
     }
 
+    private <T> T getAuthenticationObject(Class<T> authClass, String errorMessage) {
+        return this.authentications.values().stream()
+                .filter(authClass::isInstance)
+                .findFirst()
+                .map(authClass::cast)
+                .orElseThrow(() -> new RuntimeException(errorMessage));
+    }
+
     protected void addHeadersToRequest(HttpHeaders headers, WebClient.RequestBodySpec requestBuilder) {
-        Iterator var3 = headers.headerSet().iterator();
-
-        while(var3.hasNext()) {
-            Map.Entry<String, List<String>> entry = (Map.Entry)var3.next();
-            List<String> values = (List)entry.getValue();
-            Iterator var6 = values.iterator();
-
-            while(var6.hasNext()) {
-                String value = (String)var6.next();
-                if (value != null) {
-                    requestBuilder.header((String)entry.getKey(), new String[]{value});
-                }
-            }
-        }
-
+        headers.headerSet()
+            .forEach(header ->
+                requestBuilder.header(header.getKey(), header.getValue().toArray(String[]::new)));
     }
 
     protected void addCookiesToRequest(MultiValueMap<String, String> cookies, WebClient.RequestBodySpec requestBuilder) {
-        Iterator var3 = cookies.entrySet().iterator();
-
-        while(var3.hasNext()) {
-            Map.Entry<String, List<String>> entry = (Map.Entry)var3.next();
-            List<String> values = (List)entry.getValue();
-            Iterator var6 = values.iterator();
-
-            while(var6.hasNext()) {
-                String value = (String)var6.next();
-                if (value != null) {
-                    requestBuilder.cookie((String)entry.getKey(), value);
-                }
-            }
-        }
-
+        cookies.forEach((name, values) ->
+            requestBuilder.cookie(name, values.stream().findFirst().orElse("")));
     }
 
     protected void updateParamsForAuth(String[] authNames, MultiValueMap<String, String> queryParams, HttpHeaders headerParams, MultiValueMap<String, String> cookieParams) {
-        String[] var5 = authNames;
-        int var6 = authNames.length;
+        UnaryOperator<String> checkAuthenticationExists = name -> Optional.of(name)
+            .filter(this.authentications::containsKey)
+            .orElseThrow(() -> new RestClientException("Authentication undefined: " + name));
 
-        for(int var7 = 0; var7 < var6; ++var7) {
-            String authName = var5[var7];
-            Authentication auth = (Authentication)this.authentications.get(authName);
-            if (auth == null) {
-                throw new RestClientException("Authentication undefined: " + authName);
-            }
+        /*Stream.of(authNames)
+            .map(checkAuthenticationExists)
+            .map(this.authentications::get)
+            .forEach(auth -> auth.applyToParams(queryParams, headerParams, cookieParams));*/
+    }
 
-            auth.applyToParams(queryParams, headerParams, cookieParams);
-        }
-
+    public Retry getRetryConfig(String apiName) {
+        return Retry.backoff(this.getRetries(), Duration.ofSeconds(this.getRetrySeconds()))
+                .doBeforeRetry(signal -> LOG.debug("Error getting data from api: {}. Trying to get data again", apiName))
+                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) ->
+                        new RuntimeException(apiName + " Service failed to process after max retries"));
     }
 
     public String collectionPathParameterToString(CollectionFormat collectionFormat, Collection<?> values) {
-        if (ApiClient2.CollectionFormat.MULTI.equals(collectionFormat)) {
-            return this.parameterToString(values);
-        } else {
-            if (collectionFormat == null) {
-                collectionFormat = ApiClient2.CollectionFormat.CSV;
-            }
+        final var collFormat = Objects.isNull(collectionFormat) ? CollectionFormat.CSV : collectionFormat;
 
-            return collectionFormat.collectionToString(values);
-        }
+        return Optional.of(collFormat)
+            .filter(CollectionFormat.MULTI::equals)
+            .map(format -> this.parameterToString(values))
+            .orElseGet(() -> collFormat.collectionToString(values));
     }
 
     public static enum CollectionFormat {
@@ -472,7 +466,7 @@ public class ApiClient2 {//implements ExternalClientApi {
         TSV("\t"),
         SSV(" "),
         PIPES("|"),
-        MULTI((String)null);
+        MULTI(",");
 
         private final String separator;
 
@@ -483,5 +477,5 @@ public class ApiClient2 {//implements ExternalClientApi {
         private String collectionToString(Collection<?> collection) {
             return StringUtils.collectionToDelimitedString(collection, this.separator);
         }
-    }*/
+    }
 }

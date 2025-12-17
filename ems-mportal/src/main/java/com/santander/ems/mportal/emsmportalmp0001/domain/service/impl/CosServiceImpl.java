@@ -1,11 +1,7 @@
 package com.santander.ems.mportal.emsmportalmp0001.domain.service.impl;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.santander.ems.mportal.emsmportalmp0001.domain.model.cos.JWEEncryptRequest;
-import com.santander.ems.mportal.emsmportalmp0001.domain.model.cos.JWEEncryptResponse;
-import com.santander.ems.mportal.emsmportalmp0001.domain.model.cos.Payload;
-import com.santander.ems.mportal.emsmportalmp0001.domain.model.cos.PayloadCommerceRequest;
+import com.santander.ems.mportal.emsmportalmp0001.domain.model.cos.*;
 import com.santander.ems.mportal.emsmportalmp0001.domain.model.sas.SasResponse;
 import com.santander.ems.mportal.emsmportalmp0001.domain.service.CosService;
 import com.santander.ems.mportal.emsmportalmp0001.domain.service.SasAuthenticateCredentialsService;
@@ -18,8 +14,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 /**
  * The type Cos service.
@@ -85,20 +79,20 @@ public class CosServiceImpl implements CosService {
    * @param data the data
    * @return the jwee request
    */
-  private JWEEncryptRequest getJWWERequest(Object data) {
-
-    Map<String, Object> fields;
-
-    if (data instanceof Map) {
-      fields = (Map<String, Object>) data;
-    } else {
-      ObjectMapper mapper = new ObjectMapper();
-      fields = mapper.convertValue(data, Map.class);
-    }
+  private JWEEncryptRequest getJWWERequest(PayloadCommerceRequest data) {
 
     return JWEEncryptRequest.builder()
       .keyalias(cosProperties.getKeyalias())
-      .payload(Payload.builder().fields(fields).build())
+      .expiration(60)
+      .payload(JWEPayload.builder()
+          .personCode(data.getPersonCode())
+          .personType(data.getPersonType())
+          .order(data.getOrder())
+          .billingDateFrom(data.getBillingDateFrom())
+          .billingDateTo(data.getBillingDateTo())
+          .listDateFrom(data.getListDateFrom())
+          .listDateTo(data.getListDateTo())
+          .build())
       .build();
   }
 

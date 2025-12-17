@@ -2,3 +2,5 @@ getnet:
   client:
     nuek:
       url: http://localhost:8080
+      retries: 2
+      retrySeconds: 1

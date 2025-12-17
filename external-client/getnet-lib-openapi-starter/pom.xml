@@ -5,7 +5,7 @@
     <parent>
         <artifactId>getnet-lib-openapi-parent</artifactId>
         <groupId>com.santander.getnet.lib</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <name>getnet-lib-openapi-starter</name>
@@ -23,6 +23,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jackson</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
 

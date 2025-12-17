@@ -15,6 +15,15 @@ class NuekClientAutoConfigurationTest {
   @Test
   void contextLoads() {
     Assertions.assertNotNull(nuekApi);
+    Assertions.assertNotNull(nuekApi.getApiClient());
+  }
+
+  @Test
+  void contextPropertiesCheck() {
+    Assertions.assertNotNull(nuekApi);
+    Assertions.assertNotNull(nuekApi.getApiClient());
     Assertions.assertNotNull(nuekApi.getApiClient().getBasePath());
+    Assertions.assertTrue(nuekApi.getApiClient().getRetries() > 0);
+    Assertions.assertTrue(nuekApi.getApiClient().getRetrySeconds() > 0);
   }
 }

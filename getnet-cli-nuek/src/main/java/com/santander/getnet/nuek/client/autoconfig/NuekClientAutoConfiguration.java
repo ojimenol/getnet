@@ -1,6 +1,7 @@
 package com.santander.getnet.nuek.client.autoconfig;
 
 import com.santander.getnet.nuek.client.model.ApiClient;
+
 import com.santander.getnet.nuek.client.model.api.NuekApi;
 import com.santander.getnet.lib.config.ExternalBaseAutoConfiguration;
 import org.slf4j.Logger;
@@ -20,8 +21,10 @@ public class NuekClientAutoConfiguration implements ExternalBaseAutoConfiguratio
   @Qualifier("nuekApiClient")
   ApiClient nuekApiClient(NuekApiConfiguration config) {
     log.info("Creating exampleApiClient");
-    ApiClient apiClient = new ApiClient(webClient(getDefaultObjectMapper()), null, null);
+    ApiClient apiClient = new ApiClient(webClient(getDefaultJsonMapper()), null, null);
     apiClient.setBasePath(config.url());
+    apiClient.setRetries(config.retries());
+    apiClient.setRetrySeconds(config.retrySeconds());
 
     return apiClient;
   }

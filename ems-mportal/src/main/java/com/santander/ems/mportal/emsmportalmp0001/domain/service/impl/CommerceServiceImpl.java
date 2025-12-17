@@ -22,15 +22,12 @@ public class CommerceServiceImpl implements CommerceService {
 
   private final WebClient webClient;
 
-  private final NuekProperties properties;
-
   private CosService cosService;
 
   public CommerceServiceImpl(WebClient.Builder webClientBuilder, NuekProperties nuekProperties, CosService cosService) {
-    this.properties = nuekProperties;
     this.cosService = cosService;
     this.webClient = webClientBuilder
-      .baseUrl(this.properties.getCommerces())
+      .baseUrl(nuekProperties.getCommerces())
       .build();
   }
 

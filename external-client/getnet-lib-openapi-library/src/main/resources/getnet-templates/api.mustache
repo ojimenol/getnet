@@ -5,12 +5,11 @@ import {{invokerPackage}}.ApiClient;
 {{#imports}}import {{import}};
 {{/imports}}
 {{^fullJavaUtil}}
-
-  import java.util.HashMap;
-  import java.util.List;
-  import java.util.Locale;
-  import java.util.Map;
-  import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 {{/fullJavaUtil}}
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,8 +140,7 @@ import reactor.core.publisher.Flux;
 
       String[] localVarAuthNames = new String[] { {{#authMethods}}"{{name}}"{{^-last}}, {{/-last}}{{/authMethods}} };
 
-    {{#returnType}}ParameterizedTypeReference<{{#isArray}}{{{returnBaseType}}}{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}> localVarReturnType = new ParameterizedTypeReference<{{#isArray}}{{{returnBaseType}}}{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}>() {};{{/returnType}}{{^returnType}}ParameterizedTypeReference<Void> localVarReturnType = new ParameterizedTypeReference<Void>() {};{{/returnType}}
-      return apiClient.invokeAPI("{{{path}}}", HttpMethod.{{httpMethod}}, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
+      return apiClient.invokeAPI("{{{path}}}", HttpMethod.{{httpMethod}}, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames);
       }
 
       /**
@@ -159,7 +157,7 @@ import reactor.core.publisher.Flux;
       */
       public {{#returnType}}{{#vendorExtensions.x-webclient-blocking}}{{#isArray}}{{#uniqueItems}}Set{{/uniqueItems}}{{^uniqueItems}}List{{/uniqueItems}}<{{{returnBaseType}}}>{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}{{/vendorExtensions.x-webclient-blocking}}{{^vendorExtensions.x-webclient-blocking}}{{#isArray}}Flux<{{{returnBaseType}}}>{{/isArray}}{{^isArray}}Mono<{{{returnType}}}>{{/isArray}}{{/vendorExtensions.x-webclient-blocking}} {{/returnType}}{{^returnType}}{{#vendorExtensions.x-webclient-blocking}}void{{/vendorExtensions.x-webclient-blocking}}{{^vendorExtensions.x-webclient-blocking}}Mono<Void>{{/vendorExtensions.x-webclient-blocking}} {{/returnType}}{{operationId}}(HttpHeaders headers, {{#allParams}}{{#isFile}}{{#useAbstractionForFiles}}{{#collectionFormat}}java.util.Collection<org.springframework.core.io.AbstractResource>{{/collectionFormat}}{{^collectionFormat}}org.springframework.core.io.AbstractResource{{/collectionFormat}}{{/useAbstractionForFiles}}{{^useAbstractionForFiles}}{{{dataType}}}{{/useAbstractionForFiles}}{{/isFile}}{{^isFile}}{{{dataType}}}{{/isFile}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws WebClientResponseException {
     {{#returnType}}ParameterizedTypeReference<{{#isArray}}{{{returnBaseType}}}{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}> localVarReturnType = new ParameterizedTypeReference<{{#isArray}}{{{returnBaseType}}}{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}>() {};{{/returnType}}{{^returnType}}ParameterizedTypeReference<Void> localVarReturnType = new ParameterizedTypeReference<Void>() {};{{/returnType}}
-    {{^returnType}}{{^vendorExtensions.x-webclient-blocking}}return {{/vendorExtensions.x-webclient-blocking}}{{/returnType}}{{#returnType}}return {{/returnType}}{{operationId}}RequestCreation(headers, {{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}).{{#isArray}}bodyToFlux{{/isArray}}{{^isArray}}bodyToMono{{/isArray}}(localVarReturnType){{#vendorExtensions.x-webclient-blocking}}{{#isArray}}{{#uniqueItems}}.collect(Collectors.toSet()){{/uniqueItems}}{{^uniqueItems}}.collectList(){{/uniqueItems}}{{/isArray}}.block(){{/vendorExtensions.x-webclient-blocking}};
+    {{^returnType}}{{^vendorExtensions.x-webclient-blocking}}return {{/vendorExtensions.x-webclient-blocking}}{{/returnType}}{{#returnType}}return {{/returnType}}{{operationId}}RequestCreation(headers, {{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}).{{#isArray}}bodyToFlux{{/isArray}}{{^isArray}}bodyToMono{{/isArray}}(localVarReturnType).retryWhen(apiClient.getRetryConfig("{{classname}}", "{{operationId}}", "{{path}}")){{#vendorExtensions.x-webclient-blocking}}{{#isArray}}{{#uniqueItems}}.collect(Collectors.toSet()){{/uniqueItems}}{{^uniqueItems}}.collectList(){{/uniqueItems}}{{/isArray}}.block(){{/vendorExtensions.x-webclient-blocking}};
       }
 
       /**
@@ -176,7 +174,7 @@ import reactor.core.publisher.Flux;
       */
       public {{#vendorExtensions.x-webclient-blocking}}{{#returnType}}{{#isArray}}ResponseEntity<List<{{{returnBaseType}}}>>{{/isArray}}{{^isArray}}ResponseEntity<{{{returnType}}}>{{/isArray}}{{/returnType}}{{^returnType}}ResponseEntity<Void>{{/returnType}} {{/vendorExtensions.x-webclient-blocking}}{{^vendorExtensions.x-webclient-blocking}}{{#returnType}}{{#isArray}}Mono<ResponseEntity<List<{{{returnBaseType}}}>>>{{/isArray}}{{^isArray}}Mono<ResponseEntity<{{{returnType}}}>>{{/isArray}}{{/returnType}}{{^returnType}}Mono<ResponseEntity<Void>>{{/returnType}} {{/vendorExtensions.x-webclient-blocking}}{{operationId}}WithHttpInfo(HttpHeaders headers, {{#allParams}}{{#isFile}}{{#useAbstractionForFiles}}{{#collectionFormat}}java.util.Collection<org.springframework.core.io.AbstractResource>{{/collectionFormat}}{{^collectionFormat}}org.springframework.core.io.AbstractResource{{/collectionFormat}}{{/useAbstractionForFiles}}{{^useAbstractionForFiles}}{{{dataType}}}{{/useAbstractionForFiles}}{{/isFile}}{{^isFile}}{{{dataType}}}{{/isFile}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws WebClientResponseException {
     {{#returnType}}ParameterizedTypeReference<{{#isArray}}{{{returnBaseType}}}{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}> localVarReturnType = new ParameterizedTypeReference<{{#isArray}}{{{returnBaseType}}}{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}>() {};{{/returnType}}{{^returnType}}ParameterizedTypeReference<Void> localVarReturnType = new ParameterizedTypeReference<Void>() {};{{/returnType}}
-      return {{operationId}}RequestCreation(headers, {{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}).{{#isArray}}toEntityList{{/isArray}}{{^isArray}}toEntity{{/isArray}}(localVarReturnType){{#vendorExtensions.x-webclient-blocking}}.block(){{/vendorExtensions.x-webclient-blocking}};
+      return {{operationId}}RequestCreation(headers, {{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}).{{#isArray}}toEntityList{{/isArray}}{{^isArray}}toEntity{{/isArray}}(localVarReturnType).retryWhen(apiClient.getRetryConfig("{{classname}}", "{{operationId}}", "{{path}}")){{#vendorExtensions.x-webclient-blocking}}.block(){{/vendorExtensions.x-webclient-blocking}};
       }
 
       /**

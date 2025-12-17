@@ -4,18 +4,18 @@
   <parent>
     <artifactId>getnet-lib-openapi-parent</artifactId>
     <groupId>com.santander.getnet.lib</groupId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
   </parent>
 
   <groupId>com.santander.getnet.client.nuek</groupId>
   <artifactId>getnet-cli-nuek</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.0.0-SNAPSHOT</version>
   <name>getnet-cli-nuek</name>
   <description>Nuek api client</description>
 
   <properties>
     <java.version>17</java.version>
-    <openapi-parent.version>1.0.0-SNAPSHOT</openapi-parent.version>
+    <openapi-parent.version>0.0.1-SNAPSHOT</openapi-parent.version>
   </properties>
 
   <dependencies>
@@ -61,6 +61,12 @@
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.wiremock.integrations</groupId>
+      <artifactId>wiremock-spring-boot</artifactId>
+      <version>4.0.8</version>
     </dependency>
 
   </dependencies>

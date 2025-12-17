@@ -18,9 +18,15 @@ public class JWEEncryptRequest {
   private String keyalias;
 
   /**
+   * The expiration.
+   */
+  @JsonProperty("expiration")
+  private int expiration;
+
+  /**
    * The Payload.
    */
   @JsonProperty("payload")
-  private Payload payload;
+  private JWEPayload payload;
 
 }

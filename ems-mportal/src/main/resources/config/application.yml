@@ -64,6 +64,7 @@ server:
   max-http-request-header-size: 128KB
   forward-headers-strategy: framework
   shutdown: graceful
+  port: 8080
 
 app:
   cos:
