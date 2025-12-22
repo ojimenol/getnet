@@ -19,8 +19,8 @@ public class NuekAuthClientAutoConfiguration implements ExternalBaseAutoConfigur
   @Bean
   @Qualifier("nuekAuthApiClient")
   ApiClient nuekAuthApiClient(NuekAuthApiConfiguration config) {
-    log.info("Creating exampleApiClient");
-    ApiClient apiClient = new ApiClient(webClient(getDefaultJsonMapper()), null, null);
+    log.info("NuekAuthClient. Creating nuekAuthApiClient");
+    ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(config.url());
     apiClient.setRetries(config.retries());
     apiClient.setRetrySeconds(config.retrySeconds());

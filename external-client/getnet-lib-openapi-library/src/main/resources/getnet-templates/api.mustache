@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.function.Predicate;
 {{/fullJavaUtil}}
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,13 +94,10 @@ import reactor.core.publisher.Flux;
       final MultiValueMap<String, String> cookieParams = new LinkedMultiValueMap<String, String>();
       final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
 
-      if(headers!=null) {
-        if(!headers.isEmpty()) {
-          for (String header : headers.headerNames()) {
-            headerParams.add(header, apiClient.parameterToString(headers.get(header)));
-          }
-        }
-      }
+      Optional.ofNullable(headers)
+        .filter(Predicate.not(HttpHeaders::isEmpty))
+        .map(HttpHeaders::headerSet)
+        .ifPresent(hdrs -> hdrs.forEach(hdr -> headerParams.add(hdr.getKey(), apiClient.parameterToString(hdr.getValue()))));
 
       {{#hasQueryParams}}
 

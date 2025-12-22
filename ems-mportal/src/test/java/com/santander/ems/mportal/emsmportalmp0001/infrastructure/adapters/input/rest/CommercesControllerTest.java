@@ -2,10 +2,11 @@ package com.santander.ems.mportal.emsmportalmp0001.infrastructure.adapters.input
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.santander.ems.mportal.emsmportalmp0001.domain.model.Commerce;
-import com.santander.ems.mportal.emsmportalmp0001.domain.model.CommerceListResponse;
+import com.santander.ems.mportal.emsmportalmp0001.domain.model.Commerces;
 import com.santander.ems.mportal.emsmportalmp0001.domain.model.cos.JWEEncryptResponse;
 import com.santander.ems.mportal.emsmportalmp0001.domain.model.sas.SasResponse;
+import com.santander.getnet.nuek.client.model.data.Commerce;
+import com.santander.getnet.nuek.client.model.data.CommercesResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -20,6 +21,8 @@ import org.wiremock.spring.ConfigureWireMock;
 import org.wiremock.spring.EnableWireMock;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,9 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @TestPropertySource(properties = {
-    "app.nuek.commerces=http://localhost:${wiremock.server.port}/v1/commerce",
-    "app.sas.auth-url=http://localhost:${wiremock.server.port}/authenticate/credentials",
-    "app.cos.jweurl=http://localhost:${wiremock.server.port}/cos/jwe/scos/generate"})
+    "app.nuek.commerces.url=http://localhost:${wiremock.server.port}",
+    "app.nuek.auth.url=http://localhost:${wiremock.server.port}"})
 @AutoConfigureMockMvc
 @WithMockUser
 @EnableWireMock({@ConfigureWireMock(name = "my-apis-mock")})
@@ -49,7 +51,7 @@ class CommercesControllerTest {
         var sasResponse = SasResponse.builder().jwt("anyJwt").build();
         var jsonSasResponse = new ObjectMapper().writeValueAsString(sasResponse);
 
-        stubFor(WireMock.post(urlPathEqualTo("/authenticate/credentials"))
+        stubFor(WireMock.post(urlPathEqualTo("/sas/authenticate/credentials"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
@@ -63,18 +65,23 @@ class CommercesControllerTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(jsonCosResponse)));
+        var commercesApiResponse = buildCommercesResponse();
 
-        var jsonCommercesResponse = new ObjectMapper()
+        var jsonApiCommercesResponse = new ObjectMapper()
             //.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
-            .writeValueAsString(buildCommercesResponse());
+            .writeValueAsString(commercesApiResponse);
 
-        stubFor(WireMock.get(urlPathEqualTo("/v1/commerce"))
+        var jsonMvcCommercesResponse = new ObjectMapper()
+                //.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
+                .writeValueAsString(buildMvcCommercesResponse(commercesApiResponse));
+
+        stubFor(WireMock.get(urlPathMatching("/api/Comercios/commerces.*"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(jsonCommercesResponse)));
+                        .withBody(jsonApiCommercesResponse)));
 
-        mockMvc.perform(get("/ems-mportal-mp0001/v1/commerce")
+        mockMvc.perform(get("/ems-mportal-mp0001/v2/commerce")
                     .header("Authorization","auth")
                     .param("personCode", "personCode")
                     .param("personType", "personType")
@@ -85,17 +92,30 @@ class CommercesControllerTest {
                     .param("listDateTo", "listDateTo"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(jsonCommercesResponse));
+                .andExpect(content().string(jsonMvcCommercesResponse));
     }
 
-    private CommerceListResponse buildCommercesResponse() {
-        var commerce = Commerce.builder()
-            .commerceCode("commerceCode")
-            .build();
+    private CommercesResponse buildCommercesResponse() {
+        var commerce = new Commerce()
+            .commerceCode("commerceCode");
 
-        return CommerceListResponse.builder()
-            .commerceList(List.of(commerce))
-            .build();
+        return new CommercesResponse()
+            .commerceList(List.of(commerce));
+    }
+
+    private Commerces buildMvcCommercesResponse(CommercesResponse response) {
+        return Stream.ofNullable(response)
+            .map(CommercesResponse::getCommerceList)
+            .filter(Objects::nonNull)
+            .flatMap(List::stream)
+            .map(Commerce::getCommerceCode)
+            .map(Commerces.CommerceDTO.builder()::commerceCode)
+            .map(Commerces.CommerceDTO.CommerceDTOBuilder::build)
+            .map(List::of)
+            .map(Commerces.builder()::commerces)
+            .map(Commerces.CommercesBuilder::build)
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Can't create Commerces Response"));
     }
 }
 

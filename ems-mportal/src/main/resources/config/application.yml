@@ -79,4 +79,11 @@ app:
     password: ${env.commerce-portal.sas.password}
     realm: ${env.commerce-portal.sas.realm}
   nuek:
-    commerces: ${env.commerce-portal-portal.commerces-url}
+    commerces:
+      url: ${env.commerce-portal-portal.commerces-url}
+      retries: ${env.commerce-portal-portal.commerces-retry}
+      retrySeconds: ${env.commerce-portal-portal.commerces-retry-seconds}
+    auth:
+      url: ${env.commerce-portal.sas.auth-url}
+      retries: ${env.commerce-portal-portal.commerces-retry}
+      retrySeconds: ${env.commerce-portal-portal.commerces-retry-seconds}

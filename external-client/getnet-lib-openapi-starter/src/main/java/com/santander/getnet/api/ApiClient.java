@@ -1,7 +1,9 @@
 package com.santander.getnet.api;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
+import org.openapitools.jackson.nullable.JsonNullableModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -10,8 +12,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.codec.json.JacksonJsonDecoder;
-import org.springframework.http.codec.json.JacksonJsonEncoder;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -24,8 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 import reactor.util.retry.Retry;
-import tools.jackson.core.json.JsonReadFeature;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -48,7 +48,7 @@ public class ApiClient implements ExternalClientApi {
     private int retrySeconds;
     private WebClient webClient;
     private final DateFormat dateFormat;
-    private final JsonMapper jsonMapper;
+    private final ObjectMapper objectMapper;
     private Map<String, Object> authentications;
 
     public ApiClient() {
@@ -58,8 +58,8 @@ public class ApiClient implements ExternalClientApi {
         this.retries = 0;
         this.retrySeconds = 0;
         this.dateFormat = createDefaultDateFormat();
-        this.jsonMapper = createDefaultJsonMapper(this.dateFormat);
-        this.webClient = buildWebClient(this.jsonMapper);
+        this.objectMapper = createDefaultObjectMapper(this.dateFormat);
+        this.webClient = buildWebClient(this.objectMapper);
         this.init();
     }
 
@@ -68,13 +68,13 @@ public class ApiClient implements ExternalClientApi {
                 .orElseGet(ApiClient::buildWebClient), createDefaultDateFormat());
     }
 
-    public ApiClient(JsonMapper mapper, DateFormat format) {
-        this(buildWebClient(mapper.rebuild().build()), format);
+    public ApiClient(ObjectMapper mapper, DateFormat format) {
+        this(buildWebClient(mapper.copy()), format);
     }
 
-    public ApiClient(WebClient webClient, JsonMapper mapper, DateFormat format) {
+    public ApiClient(WebClient webClient, ObjectMapper mapper, DateFormat format) {
         this(Optional.ofNullable(webClient)
-                .orElseGet(() -> buildWebClient(mapper.rebuild().build())), format);
+                .orElseGet(() -> buildWebClient(mapper.copy())), format);
     }
 
     private ApiClient(WebClient webClient, DateFormat format) {
@@ -85,7 +85,7 @@ public class ApiClient implements ExternalClientApi {
         this.retrySeconds = 0;
         this.webClient = webClient;
         this.dateFormat = format;
-        this.jsonMapper = createDefaultJsonMapper(format);
+        this.objectMapper = createDefaultObjectMapper(format);
         this.init();
     }
 
@@ -95,41 +95,47 @@ public class ApiClient implements ExternalClientApi {
         return null;
     }
 
-    public static JsonMapper createDefaultJsonMapper(@Nullable DateFormat dateFormat) {
+    public static ObjectMapper createDefaultObjectMapper(@Nullable DateFormat dateFormat) {
         if (null == dateFormat) {
             dateFormat = createDefaultDateFormat();
         }
 
-        return JsonMapper.builder()
-                .configure(JsonReadFeature.ALLOW_MISSING_VALUES, true)
-                .configure(JsonReadFeature.ALLOW_SINGLE_QUOTES, true)
-                .defaultDateFormat(dateFormat)
-                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_NULL))
-                .findAndAddModules()
-                .build();
+        final var dtFormat = dateFormat;
+
+        return Optional.of(new JsonNullableModule())
+            .map(new ObjectMapper()::registerModule)
+            .map(mapper -> mapper.setDateFormat(dtFormat))
+            .map(mapper -> mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
+            .orElse(null);
     }
 
     protected void init() {
     }
 
-    public static WebClient.Builder buildWebClientBuilder(JsonMapper mapper) {
-        ExchangeStrategies strategies = ExchangeStrategies.builder().codecs((clientDefaultCodecsConfigurer) -> {
-            clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonEncoder(new JacksonJsonEncoder(mapper, MediaType.APPLICATION_JSON));
-            clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonDecoder(new JacksonJsonDecoder(mapper, MediaType.APPLICATION_JSON));
-        }).build();
-        return WebClient.builder().exchangeStrategies(strategies);
+    public static WebClient.Builder buildWebClientBuilder(ObjectMapper mapper) {
+        return Optional.of(ExchangeStrategies.builder())
+            .map(builder -> builder.codecs(clientDefaultCodecsConfigurer -> {
+                clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonEncoder(
+                     new Jackson2JsonEncoder(mapper, MediaType.APPLICATION_JSON));
+                 clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonDecoder(
+                     new Jackson2JsonDecoder(mapper, MediaType.APPLICATION_JSON));
+                })
+            )
+            .map(ExchangeStrategies.Builder::build)
+            .map(WebClient.builder()::exchangeStrategies)
+            .orElse(null);
     }
 
     public static WebClient.Builder buildWebClientBuilder() {
-        return buildWebClientBuilder(createDefaultJsonMapper((DateFormat)null));
+        return buildWebClientBuilder(createDefaultObjectMapper(null));
     }
 
-    public static WebClient buildWebClient(JsonMapper mapper) {
+    public static WebClient buildWebClient(ObjectMapper mapper) {
         return buildWebClientBuilder(mapper).build();
     }
 
     public static WebClient buildWebClient() {
-        return buildWebClientBuilder(createDefaultJsonMapper((DateFormat)null)).build();
+        return buildWebClientBuilder(createDefaultObjectMapper(null)).build();
     }
 
     public String getBasePath() {
@@ -200,7 +206,7 @@ public class ApiClient implements ExternalClientApi {
     }
 
     public ApiClient addDefaultHeader(String name, String value) {
-        if (this.defaultHeaders.containsHeader(name)) {
+        if (this.defaultHeaders.containsKey(name)) {
             this.defaultHeaders.remove(name);
         }
 
@@ -229,8 +235,8 @@ public class ApiClient implements ExternalClientApi {
         return this.dateFormat.format(date);
     }
 
-    public JsonMapper getJsonMapper() {
-        return this.jsonMapper;
+    public ObjectMapper getObjectMapper() {
+        return this.objectMapper;
     }
 
     public WebClient getWebClient() {
@@ -268,11 +274,10 @@ public class ApiClient implements ExternalClientApi {
 
                 return params;
             } else {
-                if (!(value instanceof Collection)) {
+                if (!(value instanceof Collection valueCollection)) {
                     params.add(name, this.parameterToString(value));
                     return params;
                 } else {
-                    var valueCollection = (Collection)value;
                     if (valueCollection.isEmpty()) {
                         return params;
                     } else if (collectionFormat.equals(CollectionFormat.MULTI)) {
@@ -461,7 +466,7 @@ public class ApiClient implements ExternalClientApi {
             .orElseGet(() -> collFormat.collectionToString(values));
     }
 
-    public static enum CollectionFormat {
+    public enum CollectionFormat {
         CSV(","),
         TSV("\t"),
         SSV(" "),
@@ -470,7 +475,7 @@ public class ApiClient implements ExternalClientApi {
 
         private final String separator;
 
-        private CollectionFormat(String separator) {
+        CollectionFormat(String separator) {
             this.separator = separator;
         }
 

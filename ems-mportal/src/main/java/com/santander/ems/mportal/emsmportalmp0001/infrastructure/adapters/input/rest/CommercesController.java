@@ -2,7 +2,7 @@ package com.santander.ems.mportal.emsmportalmp0001.infrastructure.adapters.input
 
 import com.santander.ems.mportal.emsmportalmp0001.application.ports.input.CommercesInputPort;
 import com.santander.ems.mportal.emsmportalmp0001.domain.command.rest.CommercesGetCommand;
-import com.santander.ems.mportal.emsmportalmp0001.domain.model.CommerceListResponse;
+import com.santander.ems.mportal.emsmportalmp0001.domain.model.Commerces;
 import com.santander.framework.springboot.core.exceptions.dto.ErrorModelGateway;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -68,7 +68,7 @@ public class CommercesController {
 					responseCode = "200",
 					description = "successful operation",
 					content = @Content(
-							schema = @Schema(implementation = CommerceListResponse.class)
+							schema = @Schema(implementation = Commerces.class)
 					)
 			),
 			//Bad request response
@@ -110,16 +110,16 @@ public class CommercesController {
 					content = @Content(schema = @Schema(implementation = ErrorModelGateway.class)))
 
 	})
-	@GetMapping(value="/v1/commerce", produces=MediaType.APPLICATION_JSON_VALUE)
-	public CommerceListResponse getCommerces(
-			@RequestHeader("Authorization") String authorization, @RequestParam String personCode,
-			@RequestParam String personType, @RequestParam String billingDateFrom, @RequestParam String billingDateTo,
-			@RequestParam String order, @RequestParam String listDateFrom, @RequestParam String listDateTo) {
-		log.info("Log from /v1/commerce");
+	@GetMapping(value="/v2/commerce", produces=MediaType.APPLICATION_JSON_VALUE)
+	public Commerces getCommerces(
+			@RequestHeader("Authorization") String authorization, @RequestParam("personCode") String personCode,
+			@RequestParam ("personType")String personType, @RequestParam("billingDateFrom") String billingDateFrom,
+			@RequestParam("billingDateTo") String billingDateTo, @RequestParam("order") String order,
+			@RequestParam("listDateFrom") String listDateFrom, @RequestParam("listDateTo") String listDateTo) {
+		log.info("Log from /v2/commerce");
 		return Optional.of(new CommercesGetCommand(
 				personCode, personType, billingDateFrom, billingDateTo, order, listDateFrom, listDateTo))
 			.map(commercesInputPort::getCommerces)
-			.map(CommerceListResponse::new)
-			.orElseThrow(() -> new RuntimeException("v1/commerce : Can't get commerces"));
+			.orElseThrow(() -> new RuntimeException("v2/commerce : Can't get commerces"));
 	}
 }

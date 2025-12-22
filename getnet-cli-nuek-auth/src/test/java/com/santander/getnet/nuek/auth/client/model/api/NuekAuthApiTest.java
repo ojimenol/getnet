@@ -45,14 +45,14 @@ class NuekAuthApiTest {
     }
 
     @Test
-    void nuekApiOkTest() {
+    void nuekApiOkTest() throws Exception {
 
         var mockResponse = new PostGenerateSASTokens200Response()
             .jwt(UUID.randomUUID().toString())
             .tokenCorp(UUID.randomUUID().toString())
             .cookieCorp(UUID.randomUUID().toString());
 
-        var jsonResponse = nuekAuthApi.getApiClient().getJsonMapper().writeValueAsString(mockResponse);
+        var jsonResponse = nuekAuthApi.getApiClient().getObjectMapper().writeValueAsString(mockResponse);
 
         stubFor(post(urlPathMatching("/sas/authenticate/credentials.*"))
             .willReturn(aResponse()
@@ -78,7 +78,7 @@ class NuekAuthApiTest {
     @Test
     void nuekApiRetryTest() {
 
-        stubFor(get(urlPathMatching("/api/Comercios/commerces.*"))
+        stubFor(post(urlPathMatching("/sas/authenticate/credentials.*"))
                 .willReturn(aResponse()
                         .withStatus(500)
                         .withHeader("Content-Type", "application/json")));
@@ -86,7 +86,7 @@ class NuekAuthApiTest {
         assertThrows(RuntimeException.class, () -> nuekAuthApi.postGenerateSASTokens(new HttpHeaders(), buildCredentials("", "", UUID.randomUUID().toString()))
             .blockOptional());
 
-        verify(3, getRequestedFor(urlPathMatching("/api/Comercios/commerces.*")));
+        verify(3, postRequestedFor(urlPathMatching("/sas/authenticate/credentials.*")));
 
     }
 

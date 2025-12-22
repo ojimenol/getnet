@@ -1,12 +1,10 @@
 package com.santander.ems.mportal.emsmportalmp0001.application.usecases;
 
 import com.santander.ems.mportal.emsmportalmp0001.domain.command.rest.CommercesGetCommand;
-import com.santander.ems.mportal.emsmportalmp0001.domain.model.Commerce;
-
-import java.util.List;
+import com.santander.ems.mportal.emsmportalmp0001.domain.model.Commerces;
 
 public interface CommercesUseCase {
 
-    List<Commerce> getCommerces(CommercesGetCommand command);
+    Commerces getCommerces(CommercesGetCommand command);
 
 }

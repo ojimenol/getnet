@@ -43,7 +43,7 @@ class NuekApiTest {
     }
 
     @Test
-    void nuekApiOkTest() {
+    void nuekApiOkTest() throws Exception {
 
         final var commerceCode = "A000";
         final var commerceName = "TestCommerce";
@@ -51,7 +51,7 @@ class NuekApiTest {
         var mockCommerce = new Commerce().commerceCode(commerceCode).commerceName(commerceName);
         var mockResponse = new CommercesResponse().commerceList(List.of(mockCommerce));
 
-        var jsonResponse = nuekApi.getApiClient().getJsonMapper().writeValueAsString(mockResponse);
+        var jsonResponse = nuekApi.getApiClient().getObjectMapper().writeValueAsString(mockResponse);
 
         stubFor(get(urlPathMatching("/api/Comercios/commerces.*"))
             .willReturn(aResponse()

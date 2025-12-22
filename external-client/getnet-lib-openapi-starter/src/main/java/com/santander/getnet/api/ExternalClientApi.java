@@ -1,7 +1,7 @@
 package com.santander.getnet.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.reactive.function.client.WebClient;
-import tools.jackson.databind.json.JsonMapper;
 
 public interface ExternalClientApi {
 
@@ -15,7 +15,7 @@ public interface ExternalClientApi {
    * Get the ObjectMapper used to make HTTP requests.
    * @return ObjectMapper objectMapper
    */
-  JsonMapper getJsonMapper();
+  ObjectMapper getObjectMapper();
 
   /**
    * Get the WebClient used to make HTTP requests.

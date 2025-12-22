@@ -1,6 +1,6 @@
-getnet:
-  client:
-    nuek:
+app:
+  nuek:
+    commerces:
       url: http://localhost:8080
       retries: 2
       retrySeconds: 1
