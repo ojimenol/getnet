@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  ems-mportal-bckmepol:
+    image: ems-mportal-bckmepol
+    build: .
+    environment:
+      JAVA_ENV: DOCKER
+      local: "true"
+    ports:
+      - 8080:8080
+    command: mvn clean package compile exec:exec -Dexec.args="--debug-mode"
+
+  vulnerability-scanner:
+    image: aquasec/trivy
+    depends_on:
+      - ems-mportal-bckmepol
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $HOME/.cache:/root/.cache
+    command: image ems-mportal-bckmepol
+
+  redis-local:
+    image: redis:latest
+    ports:
+    - "6379:6379"
+    volumes:
+      - $HOME/data:/root/data

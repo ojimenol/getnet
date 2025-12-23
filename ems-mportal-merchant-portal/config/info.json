@@ -1,0 +1,14 @@
+{
+	"product": "devsecops",
+	"serviceName": "archref-java-ms",
+	"serviceLabel": "archref-java-ms",
+	"version": "v1",
+	"servicePropertiesPath": "properties",
+	"serviceInfraPath": "infra",
+	"type": "npci",
+	"appPort": "8080",
+	"architectureVersion": "0.1",
+	"productAcronym": "dso",
+	"entity": "GMS",
+	"region": "ZU2"
+}

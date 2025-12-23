@@ -1,0 +1,37 @@
+dev:
+  deployment:
+    replicasCount: 1
+  customVars:
+    FOO: bar
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+qa:
+  deployment:
+    replicasCount: 1
+  customVars:
+    FOO: bar
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+uat:
+  deployment:
+    replicasCount: 3
+  customVars:
+    FOO: bar
+
+prod:
+  deployment:
+    replicasCount: 3
+  customVars:
+    FOO: bar

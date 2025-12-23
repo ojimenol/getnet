@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+  code-scanner:
+    image: sonarqube:lts-community
+    restart: always
+    ports:
+      - 9000:9000
