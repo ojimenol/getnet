@@ -3,7 +3,7 @@
   <groupId>com.santander.getnet.lib</groupId>
   <artifactId>getnet-lib-openapi-parent</artifactId>
   <versioning>
-    <lastUpdated>20251209125440</lastUpdated>
+    <lastUpdated>20251217153804</lastUpdated>
     <snapshot>
       <localCopy>true</localCopy>
     </snapshot>
@@ -11,7 +11,7 @@
       <snapshotVersion>
         <extension>pom</extension>
         <value>0.0.1-SNAPSHOT</value>
-        <updated>20251209125440</updated>
+        <updated>20251217153804</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>
